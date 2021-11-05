@@ -1,0 +1,177 @@
+---
+title: "Summarizing species-specific fish density by transect and site"
+author: "Hannah Rempel"
+date: "2/15/2019"
+output: html_document
+---
+
+This script is used to: 
+1) calculate the distance traveled per survey of the abundance and fork length of Chromis multilineata, surgeonfishes (Acanthurids), and parrotfishes (Scarini) based on the latitude and longitude taken from a GPS reciever on a surface float every min throughout the survey, and 
+2) summarized the species-specific fish density at the transect and site level
+
+#Setup
+This chunk installs packages and loads them
+```{r loading packages, include=FALSE}
+# Installing packages if not yet installed
+if (!require(here)) install.packages("here") 
+if (!require(tidyverse)) install.packages("tidyverse") 
+if (!require(lubridate)) install.packages("lubridate") #for date/time objects
+if (!require(geosphere)) install.packages("geosphere") #this distance between lat/long points
+if (!require(plotrix)) install.packages("plotrix") #for summarizing the SEM
+
+#List all packages in the vector "packages", load them in the following line w/ sapply function
+packages <- c("here", "tidyverse", "lubridate", "geosphere", "plotrix") #list all packages here
+sapply(packages, require, character.only = T) #this loads (aka requires) all packages in the list
+```
+
+This chunk reads in the fish density surveys for: 
+(1) parrotfishes (survey_type="Scarini surveys"), 
+(2) surgeonfishes (survey_type="Acanthurid surveys"), 
+(3) Brown Chromis (survey_type="C. multilineata survey)
+
+Brief data overview:  
+ -For each survey type, there are four transects per site
+ -Depth (m) is the mean survey depth
+ -The minutes in to the survey relative to the start time ("time_start") are indicated by min (which starts at min 0).
+ -Latitude and longitude are the GPS coordinates for a given minute in the survey, used to calcualte the total distance traveled in the survey.
+ -Since parrotfishes are sex changing fishes, phase is indicated (IP=initial phase, TP=terminal phase) and values for Acanthurids and Brown Chromis are NA
+ -Fork length is given to the nearest cm, except for Brown chromis (because they were so abundant, it was not feasible to measure each individual to the nearest cm, so FL is given as a range).
+```{r reading in data, include=FALSE}
+fish_density_surveys <- read_csv(here::here('data/fish_density_surveys.csv'), 
+#read_csv assigns column types based on first 1000 rows, guess_max overrides that so it (to avoid parsing error)
+                      guess_max = 2931)  
+
+#summary of sampling effort (4 transects per site per survey type)
+fish_density_surveys %>% select(survey_type, site, transect) %>% distinct()
+```
+
+#Calculating survey area, duration, and mean depth
+
+This chunk calculates the Haversine distance traveled between GPS points based on the previous lat/long, the summarized the survey area (sum of distance traveled*5 because the survey width was 5m), creating a metadataframe of the survey area for each transect
+```{r calculating transect survey area}
+#subsetting lat/lon values at the start of each transect
+survey_metadata <- fish_density_surveys %>%
+  distinct(survey_type, site, transect, depth_m, latitude, longitude) %>% 
+  group_by(survey_type, site, transect) %>%
+  mutate(prev_lat = lag(latitude), #the latitude of the previous row (used to calculate distance traveled in next df)
+         prev_long = lag(longitude)) #the longitude of the previous row (used to calculate distance traveled in next df)
+
+#alculating the distance traveled between lat/long points
+dist_traveled <- survey_metadata %>% 
+  
+  #Note: if you change the order of the first 4 vars in the select function that will mess up the following line of code (pmap_dbl... etc)
+  dplyr::select(latitude, longitude, prev_lat, prev_long, survey_type, site, transect) %>%
+
+  #this is applying calculation of the distance between (1) latitude, (2) longitude, (3) prev_lat, (4) prev_long across the df
+  pmap_dbl(~distm(c(..1, ..2), c(..3, ..4), 
+                  
+                  #Haversine distance is "as the crow flies"
+                  fun = distHaversine)) %>%
+  
+  #converts to df format
+  as.data.frame() %>%
+  
+  #renames the column
+  select(dist_m_temp=".") %>%
+  
+  #there are 0's for all the initial lat/long points (b/c) no distance was traveled then, this puts in a 0m traveled
+  mutate(dist_m=replace(dist_m_temp, is.na(dist_m_temp), 0)) %>%
+  
+  select(dist_m) %>%
+  
+  ungroup()
+
+#joining the distance data with survey gps
+distance_df <- bind_cols(survey_metadata, dist_traveled) %>%
+  group_by(survey_type, site, transect) %>%
+  dplyr::summarise(survey_area_m2 = sum(dist_m) * 5)  #sum of distance between gps points at each minute interval * 5 for the 5-m survey belt width
+```
+
+This chunk summarizes the duration of each survey and mean depth (since depth was recorded each min)
+```{r calculating survey duration (min) and mean depth (m)}
+fish_density_survey_duration_depth <- fish_density_surveys %>% 
+  group_by(survey_type, site, transect) %>% 
+  #since the first minute is recorded as minute 0, survey duration is the min + 1
+  summarise(duration_min=max(min+1), 
+            depth_m=round(mean(depth_m),1)) #mean survey depth per transect
+```
+#Summarizing species-specific fish density by transect
+
+This chunk creates a tibble of the site coordinate metadata to merge to the transect-level summary below
+```{r site coordinate metadata}
+site <- c("Karpata", "Tolo", "Cliff", "Bachelor's Beach")
+latitude <- c(12.219123, 12.214962, 12.174285, 12.125726)
+longitude <- c(-68.352684, -68.337958, -68.290726, -68.288226)
+site_coordinates <- tibble(site, latitude, longitude)
+```
+
+This chunk summarizing the abundance and density of all observed species within a given transect.
+
+Overview: There were some transects where individuals of some species were not observed. To incorperate these zeros into the dataset, the following chunk first creates a "dummy" dataframe of all possible survey type, transect, and species combinations, joins in the existing survey data, then any rows where there are NA's for species abundance (n) and density (n_per_m2) are replaced with zeros to account for these non-detections before summarizing the site-level density of species.
+```{r summarizing species density by transect}
+#summarizing fish density, doesn't include 0's/non-observations of a given species in a given transect
+species_density_per_transect_temp <- fish_density_surveys %>% 
+  select(-depth_m) %>% #dropping individual observations of depth for a given minute, replacing with mean depth (next line)
+  left_join(fish_density_survey_duration_depth) %>% #joining in the survey duration and mean depth
+  group_by(survey_type, site, transect, duration_min, depth_m, species) %>%
+  dplyr::summarise(n=n()) %>% #summarizing the abundance of a given species at the transect-level
+  left_join(distance_df) %>% #joining the transect survey area data
+  mutate(n_per_m2=n/survey_area_m2) %>%
+  filter(species!="no fish") #filtering out the data where no fish were observed
+
+#summarizing metadata (transect depth and survey area) to join into the "dummy" data frame below
+survey_metadata_2 <- species_density_per_transect_temp %>% 
+  select(survey_type, site, transect, depth_m, survey_area_m2) %>% 
+  distinct()
+
+#summarizing the abundance and density of fishes, including 0's
+#creating a "dummy" data frame of all location, species, transect combinations to account for 0s
+dummy_fish_density_transect <- data.frame(site=c(rep("Bachelor's Beach", 52), rep("Cliff", 52), rep("Karpata", 52), rep("Tolo", 52)),
+                                          transect= c(rep(1, 13), rep(2, 13), rep(3, 13), rep(4,13)),
+                                   species = rep(c("Acanthurus chirurgus", "Acanthurus coeruleus", "Acanthurus tractus", "Chromis multilineata", "Scarus iseri", "Scarus taeniopterus", "Scarus vetula", "Sparisoma aurofrenatum", "Sparisoma chrysopterum", "Sparisoma viride","Scarus coeruleus", "Sparisoma rubripinne", "Scarus guacamaia"),16)) %>%
+  mutate(survey_type = case_when(species %in% c("Acanthurus chirurgus", "Acanthurus coeruleus", "Acanthurus tractus") ~ "Acanthurid survey",
+                                species == "Chromis multilineata" ~ "C. multilineata survey" ,
+                                species %in% c("Scarus iseri", "Scarus taeniopterus", "Scarus vetula", "Sparisoma aurofrenatum", "Sparisoma chrysopterum", "Sparisoma viride","Scarus coeruleus", "Sparisoma rubripinne", "Scarus guacamaia") ~ "Scarini survey")) 
+
+#joining the observations to the dummy dataset to account for 0's
+fish_density_transect <- dummy_fish_density_transect%>%   
+  
+  #adding in the depth and survey area for each transect
+  left_join(survey_metadata_2) %>%
+  
+  #adding in the species density data 
+  left_join(species_density_per_transect_temp) %>%
+  
+  #replacing the NAs for n_per_m2 and n in the 0's (to account for surveys in which a given species was not observed)
+  mutate(n_per_m2 =case_when(is.na(n_per_m2) ~0, TRUE ~as.numeric(n_per_m2)),
+         n =case_when(is.na(n) ~0, TRUE ~as.numeric(n))) %>%
+  left_join(site_coordinates) %>%
+  select(site, latitude, longitude, survey_type, duration_min, survey_area_m2, depth_m, transect, species, n, n_per_m2)
+```
+
+This chunk writes the transect-level summary to a csv for later analysis of rates of coporphagy by species after accounting for density (see fecal_pellet_observations.Rmd)
+```{r writing transect-level fish density summary to csv}
+write_csv(fish_density_transect, here::here("data/summary_fish_density_by_transect.csv"))
+```
+
+#Summarizing species-specific fish density by site
+
+This chunk summarizes the mean and SEM of species density
+```{r summarizing species density by site}
+#summary of the mean density of fish species by site
+fish_density_site <- fish_density_transect %>%
+  group_by(survey_type, site, latitude, longitude, species) %>%
+  dplyr::summarise(mean_survey_depth_m= mean(depth_m),
+                   mean_survey_duration=mean(duration_min),
+                   mean_survey_area_m2=mean(survey_area_m2),
+                   mean_n_per_m2 = mean(n_per_m2), #mean fish density
+                   sem_n_per_m2= plotrix::std.error(n_per_m2)) #SEM of fish density
+
+#summary of the mean density of C. multilineata by site
+chromis_density_by_site <- fish_density_site %>% 
+  filter(survey_type=="C. multilineata survey") %>% 
+  mutate(mean_n_per_m2=round(mean_n_per_m2, 1), sem_n_per_m2=round(sem_n_per_m2, 1)) %>%
+  select(site, mean_n_per_m2, sem_n_per_m2)
+
+chromis_density_by_site
+```

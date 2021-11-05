@@ -1,0 +1,113 @@
+site,latitude,longitude,date,time_start,duration_min,species,phase,fork_length_cm,total_bites,bites_on_feces
+Bachelor's Beach,12.125726,-68.288226,2019-06-27,13:21:00,20,Scarus taeniopterus,IP,15,693,0
+Bachelor's Beach,12.125726,-68.288226,2019-06-27,13:46:00,20,Scarus taeniopterus,TP,22,628,0
+Cliff,12.174285,-68.290726,2019-06-27,10:04:00,20,Scarus vetula,IP,23,722,0
+Cliff,12.174285,-68.290726,2019-06-27,10:56:00,20,Scarus vetula,TP,30,437,0
+Cliff,12.174285,-68.290726,2019-06-27,11:21:00,20,Sparisoma viride,TP,30,485,0
+Karpata,12.219123,-68.352684,2019-06-29,12:42:00,20,Scarus vetula,TP,30,664,0
+Karpata,12.219123,-68.352684,2019-06-29,13:09:00,20,Sparisoma viride,TP,31,923,0
+Karpata,12.219123,-68.352684,2019-06-29,15:01:00,20,Scarus vetula,IP,27,642,0
+Karpata,12.219123,-68.352684,2019-06-29,15:32:00,20,Sparisoma viride,IP,24,2704,0
+Tolo,12.214962,-68.337958,2019-06-29,9:27:00,20,Sparisoma aurofrenatum,IP,17,1697,0
+Tolo,12.214962,-68.337958,2019-06-29,9:50:00,20,Sparisoma aurofrenatum,IP,21,626,0
+Tolo,12.214962,-68.337958,2019-06-29,10:16:00,20,Sparisoma viride,IP,22,1825,0
+Karpata,12.219123,-68.352684,2019-07-11,12:16:00,20,Sparisoma viride,IP,27,251,0
+Karpata,12.219123,-68.352684,2019-07-11,12:38:00,20,Sparisoma viride,TP,33,159,0
+Karpata,12.219123,-68.352684,2019-07-11,13:05:00,20,Sparisoma viride,IP,26,763,0
+Tolo,12.214962,-68.337958,2019-07-11,9:34:00,20,Sparisoma aurofrenatum,IP,16,292,183
+Tolo,12.214962,-68.337958,2019-07-11,9:57:00,20,Sparisoma aurofrenatum,TP,17,244,99
+Tolo,12.214962,-68.337958,2019-07-11,10:26:00,20,Sparisoma viride,IP,23,241,0
+Cliff,12.174285,-68.290726,2019-07-14,11:39:00,20,Scarus taeniopterus,IP,17,542,9
+Cliff,12.174285,-68.290726,2019-07-14,12:00:00,20,Sparisoma viride,TP,30,203,0
+Cliff,12.174285,-68.290726,2019-07-14,12:23:00,20,Scarus taeniopterus,IP,16,673,2
+Cliff,12.174285,-68.290726,2019-07-14,12:45:00,20,Sparisoma viride,IP,16,278,1
+Bachelor's Beach,12.125726,-68.288226,2019-07-15,11:58:00,20,Sparisoma viride,TP,31,224,0
+Tolo,12.214962,-68.337958,2019-07-16,9:29:00,18,Scarus guacamaia,TP,80,65,0
+Tolo,12.214962,-68.337958,2019-07-16,9:53:00,17,Scarus guacamaia,TP,120,93,0
+Tolo,12.214962,-68.337958,2019-07-16,12:24:00,20,Scarus taeniopterus,TP,26,466,15
+Tolo,12.214962,-68.337958,2019-07-18,10:02:00,20,Scarus guacamaia,TP,90,85,0
+Cliff,12.174285,-68.290726,2019-07-19,10:27:00,20,Scarus vetula,IP,27,714,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-20,10:10:00,20,Sparisoma aurofrenatum,IP,15,353,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-20,11:15:00,20,Scarus iseri,IP,12,767,1
+Bachelor's Beach,12.125726,-68.288226,2019-07-20,11:57:00,20,Scarus iseri,IP,10,638,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-20,12:43:00,20,Scarus vetula,IP,19,1018,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-20,14:16:00,20,Sparisoma aurofrenatum,IP,16,302,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-20,14:40:00,20,Scarus taeniopterus,IP,18,645,3
+Karpata,12.219123,-68.352684,2019-07-21,14:11:00,20,Scarus taeniopterus,TP,27,759,4
+Tolo,12.214962,-68.337958,2019-07-21,9:14:00,20,Sparisoma chrysopterum,IP,28,87,0
+Tolo,12.214962,-68.337958,2019-07-21,11:15:00,20,Scarus taeniopterus,IP,15,830,1
+Tolo,12.214962,-68.337958,2019-07-21,11:40:00,20,Scarus taeniopterus,IP,21,760,1
+Tolo,12.214962,-68.337958,2019-07-21,12:04:00,20,Scarus taeniopterus,TP,24,611,1
+Bachelor's Beach,12.125726,-68.288226,2019-07-25,11:13:00,20,Sparisoma aurofrenatum,TP,19,275,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-25,11:42:00,20,Scarus iseri,IP,10,916,1
+Bachelor's Beach,12.125726,-68.288226,2019-07-25,13:11:00,20,Sparisoma aurofrenatum,TP,15,269,18
+Bachelor's Beach,12.125726,-68.288226,2019-07-25,13:33:00,20,Scarus taeniopterus,TP,26,422,56
+Bachelor's Beach,12.125726,-68.288226,2019-07-25,14:01:00,20,Scarus iseri,IP,15,467,4
+Karpata,12.219123,-68.352684,2019-07-27,10:20:00,20,Scarus taeniopterus,TP,25,204,1
+Karpata,12.219123,-68.352684,2019-07-27,11:59:00,20,Sparisoma chrysopterum,IP,28,386,0
+Karpata,12.219123,-68.352684,2019-07-27,12:20:00,20,Sparisoma chrysopterum,IP,27,327,0
+Karpata,12.219123,-68.352684,2019-07-27,12:53:00,20,Sparisoma rubripinne,IP,15,118,0
+Karpata,12.219123,-68.352684,2019-07-27,13:18:00,20,Scarus vetula,TP,32,662,0
+Karpata,12.219123,-68.352684,2019-07-28,13:17:00,20,Sparisoma chrysopterum,IP,27,130,0
+Tolo,12.214962,-68.337958,2019-07-28,11:07:00,20,Scarus vetula,TP,32,474,0
+Cliff,12.174285,-68.290726,2019-07-29,14:37:00,20,Sparisoma chrysopterum,TP,26,255,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-30,11:03:00,20,Scarus vetula,TP,34,582,0
+Bachelor's Beach,12.125726,-68.288226,2019-07-30,11:27:00,20,Scarus iseri,IP,13,824,0
+Sweet Dreams,12.030041,-68.25509,2019-07-31,11:26:00,20,Scarus coeruleus,IP,30,575,0
+Sweet Dreams,12.030041,-68.25509,2019-07-31,14:47:00,20,Scarus coeruleus,TP,43,598,0
+Karpata,12.219123,-68.352684,2019-07-08,14:22:00,20,Scarus guacamaia,IP,60,227,0
+Cliff,12.174285,-68.290726,2019-07-09,11:40:00,20,Scarus vetula,IP,24,743,0
+Cliff,12.174285,-68.290726,2019-07-09,12:03:00,20,Scarus vetula,TP,34,476,0
+Cliff,12.174285,-68.290726,2019-07-09,12:34:00,20,Sparisoma viride,TP,31,205,0
+Bachelor's Beach,12.125726,-68.288226,2019-08-10,10:56:00,20,Scarus iseri,TP,24,405,12
+Karpata,12.219123,-68.352684,2019-08-15,14:38:00,20,Scarus guacamaia,IP,41,1108,0
+Karpata,12.219123,-68.352684,2019-08-15,15:39:00,20,Sparisoma chrysopterum,TP,28,129,0
+Bachelor's Beach,12.125726,-68.288226,2019-08-17,9:40:00,20,Acanthurus coeruleus,NA,14,1018,0
+Cliff,12.174285,-68.290726,2019-08-19,9:37:00,20,Acanthurus coeruleus,NA,14,446,23
+Cliff,12.174285,-68.290726,2019-08-19,10:11:00,20,Acanthurus coeruleus,NA,13,557,175
+Karpata,12.219123,-68.352684,2019-08-02,13:34:00,20,Scarus guacamaia,TP,90,234,0
+Tolo,12.214962,-68.337958,2019-08-02,9:55:00,16,Sparisoma chrysopterum,TP,29,64,0
+Tolo,12.214962,-68.337958,2019-08-02,10:26:00,20,Sparisoma rubripinne,IP,28,67,0
+Tolo,12.214962,-68.337958,2019-08-02,11:44:00,20,Scarus guacamaia,IP,36,218,0
+Bachelor's Beach,12.125726,-68.288226,2019-08-20,11:08:00,20,Acanthurus tractus,NA,16,1116,10
+Bachelor's Beach,12.125726,-68.288226,2019-08-20,11:35:00,20,Acanthurus coeruleus,NA,16,559,53
+Bachelor's Beach,12.125726,-68.288226,2019-08-20,11:59:00,20,Acanthurus tractus,NA,12,1281,2
+Karpata,12.219123,-68.352684,2019-08-22,13:11:00,20,Sparisoma chrysopterum,IP,27,329,0
+Tolo,12.214962,-68.337958,2019-08-22,10:43:00,20,Acanthurus chirurgus,NA,17,421,17
+Bachelor's Beach,12.125726,-68.288226,2019-08-24,10:27:00,20,Acanthurus chirurgus,NA,14,211,0
+Bachelor's Beach,12.125726,-68.288226,2019-08-24,10:56:00,20,Acanthurus tractus,NA,10,1185,0
+Karpata,12.219123,-68.352684,2019-08-27,12:04:00,20,Acanthurus tractus,NA,13,1563,0
+Karpata,12.219123,-68.352684,2019-08-27,12:43:00,20,Sparisoma chrysopterum,TP,29,258,0
+Karpata,12.219123,-68.352684,2019-08-27,13:49:00,19,Scarus guacamaia,IP,37,209,0
+Andrea I,12.188233,-68.296798,2019-08-03,9:39:00,20,Scarus guacamaia,TP,90,104,0
+Andrea I,12.188233,-68.296798,2019-08-03,10:22:00,20,Scarus guacamaia,IP,31,339,0
+Andrea I,12.188233,-68.296798,2019-08-03,10:45:00,20,Scarus guacamaia,TP,110,460,0
+Cliff,12.174285,-68.290726,2019-08-03,13:30:00,20,Scarus iseri,TP,26,216,1
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:48:00,20,Scarus iseri,TP,26,730,2
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,11:11:00,20,Scarus iseri,IP,13,757,2
+Sweet Dreams,12.030041,-68.25509,2019-08-05,10:20:00,20,Scarus coeruleus,IP,33,5606,1
+Sweet Dreams,12.030041,-68.25509,2019-08-05,10:42:00,20,Scarus coeruleus,TP,39,3159,0
+Sweet Dreams,12.030041,-68.25509,2019-08-05,11:03:00,20,Scarus coeruleus,TP,44,5876,0
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:01:00,20,Scarus iseri,TP,25,346,29
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:27:00,20,Scarus iseri,TP,23,623,15
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:51:00,20,Sparisoma aurofrenatum,TP,22,206,22
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,11:18:00,17,Sparisoma aurofrenatum,TP,23,95,2
+Karpata,12.219123,-68.352684,2019-09-01,12:14:00,20,Acanthurus tractus,NA,12,1490,0
+Karpata,12.219123,-68.352684,2019-09-01,13:11:00,20,Sparisoma chrysopterum,IP,28,328,0
+Tolo,12.214962,-68.337958,2019-09-01,9:16:00,20,Sparisoma rubripinne,IP,27,192,0
+Tolo,12.214962,-68.337958,2019-09-01,9:37:00,20,Sparisoma rubripinne,IP,28,79,0
+Tolo,12.214962,-68.337958,2019-09-01,10:05:00,20,Sparisoma rubripinne,IP,24,116,0
+Tolo,12.214962,-68.337958,2019-09-01,12:49:00,20,Sparisoma rubripinne,IP,26,179,0
+Tolo,12.214962,-68.337958,2019-09-01,13:32:00,20,Scarus vetula,IP,27,791,0
+Cliff,12.174285,-68.290726,2019-09-02,9:07:00,20,Scarus guacamaia,IP,60,143,0
+Cliff,12.174285,-68.290726,2019-09-02,9:32:00,20,Scarus coeruleus,TP,70,60,0
+Cliff,12.174285,-68.290726,2019-09-02,10:07:00,20,Acanthurus tractus,NA,15,934,33
+Cliff,12.174285,-68.290726,2019-09-03,11:04:00,20,Acanthurus chirurgus,NA,14,630,7
+Cliff,12.174285,-68.290726,2019-09-03,11:26:00,20,Acanthurus chirurgus,NA,18,491,31
+Cliff,12.174285,-68.290726,2019-09-03,11:48:00,20,Acanthurus coeruleus,NA,14,440,8
+Cliff,12.174285,-68.290726,2019-09-03,12:09:00,20,Acanthurus chirurgus,NA,17,271,0
+Cliff,12.174285,-68.290726,2019-09-05,9:13:00,20,Sparisoma aurofrenatum,IP,16,192,11
+Cliff,12.174285,-68.290726,2019-09-05,9:35:00,20,Sparisoma aurofrenatum,TP,25,174,22
+Cliff,12.174285,-68.290726,2019-09-05,9:56:00,20,Scarus iseri,TP,26,436,1
+Cliff,12.174285,-68.290726,2019-09-05,10:17:00,20,Acanthurus chirurgus,NA,16,546,9
+Cliff,12.174285,-68.290726,2019-09-05,12:44:00,20,Acanthurus coeruleus,NA,14,954,1

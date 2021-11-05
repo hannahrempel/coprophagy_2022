@@ -1,0 +1,26 @@
+var,statistic,Feces,Cyanobacteria,EAM,Brown algae,Green algae,Red algae
+proteins_percent,mean,16,46.5,3.1,7.7,9,10.2
+proteins_percent,median,16.6,49.6,2.5,7.4,9.2,9.4
+proteins_percent,min,12.2,18.9,0.9,0.2,0.4,1.2
+proteins_percent,max,18.3,70.8,11.3,24.5,21.1,25.6
+proteins_percent,SEM,0.4,NA,NA,NA,NA,NA
+lipids_percent,mean,2.7,5.8,3.5,5.4,3.6,2.3
+lipids_percent,median,2.4,5.1,2,2.6,2.7,1.7
+lipids_percent,min,0.8,1,0.6,0.3,0.7,0.2
+lipids_percent,max,4.8,10.9,15.9,25.5,11.4,7.1
+lipids_percent,SEM,0.3,NA,NA,NA,NA,NA
+carbohydrates_percent,mean,75.2,10.9,27.5,32,33.6,43
+carbohydrates_percent,median,75.1,9.5,14.6,27.2,24.9,30.1
+carbohydrates_percent,min,71.6,5.4,8.1,16.8,12.3,14.3
+carbohydrates_percent,max,80.9,16.6,78.6,61.6,75.3,88.2
+carbohydrates_percent,SEM,0.5,NA,NA,NA,NA,NA
+ash_percent,mean,6.2,NA,73.7,32.3,39.3,38
+ash_percent,median,6.3,NA,80.3,31.2,34.5,37.5
+ash_percent,min,4.6,NA,32.3,15.6,13.2,10.5
+ash_percent,max,7.4,NA,86.5,50.9,87.8,75.2
+ash_percent,SEM,0.2,NA,NA,NA,NA,NA
+calories_kcalperg,mean,3.9,6.2,2,2.4,1.8,1.9
+calories_kcalperg,median,3.9,6,1,2.4,1.9,1.9
+calories_kcalperg,min,3.7,3.7,0.9,1.3,0.5,0.5
+calories_kcalperg,max,4,8.3,4.9,3.8,3.5,4
+calories_kcalperg,SEM,0,NA,NA,NA,NA,NA

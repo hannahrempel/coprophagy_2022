@@ -1,0 +1,389 @@
+---
+title: "Analysis of behavioral follows: bite rates on feces and percent fecal pellet consumption"
+author: "Hannah Rempel"
+date: "10/9/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+This script is used to: 
+(1) calculate feces consumption (coprophagy) levels based on fish behavioral follows in terms of bite rates (bites on feces per min) and percent bites on feces (bites on feces/total bites, as %),
+(2) summarize the sample size of behavioral follows by parrotfish and surgeonfish species and, for parrotfishes, phase (IP= initial phase, TP=terminal phase),
+(3) analyze species-specific differences in coporphagy levels using a Kruskal–Wallis test and post-hoc Dunn's test,
+(4) summarize the median values and bootstrapped 95% CIs of feces bite rate and percent bites on feces, and
+(5) visualize these patterns
+
+#Setup
+This chunk installs relevant packages if they are not yet installed on the user's computer, then loads that list of packages
+```{r loading packages, include=FALSE}
+#installs packages if not on the users computer
+if (!require(tidyverse)) install.packages("tidyverse")
+if (!require(here)) install.packages("here") 
+if (!require(FSA)) install.packages("FSA") #for Dunn test
+if (!require(Hmisc)) install.packages("Hmisc") #for bootstrapped confidence intervals, with ggplot2 wrapper
+if (!require(magick)) install.packages("magick") #for reading in images to add to graphs
+if (!require(cowplot)) install.packages("cowplot") #for adding images to graphs 
+if (!require(ggpubr)) install.packages("ggpubr") #for combining multipanel figures
+
+#creates a list of packages to load at once
+packages <- c("tidyverse", "here","FSA", "Hmisc", "magick", "cowplot", "ggpubr", "here")
+sapply(packages, require, character.only = T)  
+```
+
+This chunk reads in the behavioral surveys of parrotfishes and surgeonfishes
+```{r reading in data, include=FALSE}
+fish_follows_df <- read_csv(here("data/fish_behavioral_surveys.csv"))  %>%
+  mutate(phase= case_when(is.na(phase) ~ "NA", TRUE ~ phase))
+
+fish_follows_df %>% select(duration_min) %>% distinct()
+```
+
+#Sample size summary
+
+This chunk summarizes the number of fish behavioral follows by phase (for parrotfishes: initial phase or terminal phase, surgeonfishes have NA values for phase, as they are not sex-changing). We surveyed 6 surgeonfishes, and 6-12 parrotfishes (6 IP and 6 TP in most instances, though we were not always able to find sufficient individuals of a given phase to do so).
+```{r summary of fish follow sample size} 
+sample_size_summary <- fish_follows_df %>%
+  dplyr::select(date, site, time_start, species, phase) %>%
+  distinct() %>%
+  mutate(phase= case_when(is.na(phase) ~ "NA", TRUE ~ phase))
+
+#sample size by species and phase 
+
+#no follows for Sparisoma rubripinne TP individuals, this creates a row to add to the dataset to account for that
+my_add_row <- tibble(species="Sparisoma rubripinne", phase="TP", n=0)
+
+summary_sp_phase <- sample_size_summary %>% 
+  group_by(species, phase) %>% 
+  summarise(n=n()) %>%
+  bind_rows(my_add_row) #joining in the row to account for 0 follows of Sparisoma rubripinne TP individuals
+
+#sample size by species
+summary_sp <- sample_size_summary %>% 
+  group_by(species) %>% 
+  summarise(total_n=n())
+
+table_follow_sample_size <- summary_sp_phase %>% 
+  pivot_wider(names_from="phase", values_from=n) %>% 
+  select(-"NA") %>%
+  mutate(IP=replace_na(IP, "NA"), TP=replace_na(TP, "NA")) %>%
+  left_join(summary_sp)
+
+table_follow_sample_size
+
+#writing the table to a csv
+write_csv(table_follow_sample_size, here("tables/table_s1.csv")) 
+```
+
+#Cleaning data for analysis
+
+This chunk creates a tibble of species, an abbreviated species name (for graphing), broader taxonomic groups of Surgeonfish (Acanthuridae) and Parrotfish (tribe Scarini within the Labridae)) used for later data grouping and visualization.
+```{r species classifications and abbreviations}
+#creating the variables
+species <- c("Acanthurus tractus", "Acanthurus chirurgus", "Acanthurus coeruleus",
+            "Scarus coeruleus", "Scarus guacamaia", "Scarus iseri", "Scarus taeniopterus", "Scarus vetula", 
+            "Sparisoma aurofrenatum", "Sparisoma chrysopterum", "Sparisoma rubripinne", "Sparisoma viride")
+
+species_abbrev <- c("A. tractus", "A. chirurgus", "A. coeruleus",
+                 "Sc. coeruleus", "Sc. guacamaia", "Sc. iseri", "Sc. taeniopterus", "Sc. vetula",
+                 "Sp. aurofrenatum", "Sp. chrysopterum", "Sp. rubripinne", "Sp. viride")
+
+group=c(rep("Surgeonfish", 3), rep("Parrotfish", 9))
+
+#creating the tibble with these variables
+classifications <- tibble(species, species_abbrev, group)
+```
+
+This chunk  joins the classifications to the fish follow dataset and calculates variables of interest: 
+(1) percent bites on feces relative to total bites across food soruces, 
+(2) coprophagy rate (bites per minute on fecal pellets)
+```{r calculating bites per minute and percent bites on feces}
+coprophagy_df <- fish_follows_df %>%
+  left_join(classifications) %>% #joining these classifications to the fish_follows_df dataset
+  mutate(percent_feces_bites = (bites_on_feces/ total_bites)*100,
+         feces_bites_per_min = (bites_on_feces/duration_min))
+```
+
+#Statistical analysis of coprophagy behavioral data
+
+This chunk 1) checks the distribution of the percent bites on feces data and possible transformations, 2) performs a Kruskal–Wallis test (non-parametric equivalent to an ANOVA, since data are not normally distributed), and 3) since the KW test was significant, performs a post hoc Dunn's test for pairwise compairsons
+```{r KW test: percent bites on feces by species}
+#checking distribution of data: percent bites on feces, right-skewed
+coprophagy_df %>% 
+  ggplot(aes(percent_feces_bites))+
+  geom_histogram()
+
+#log-transformed percent bites on feces, still not normal/right-skewed
+coprophagy_df %>% 
+  mutate(log_percent_feces_bites  = log(percent_feces_bites +1)) %>% 
+  ggplot(aes(log_percent_feces_bites))+
+  geom_histogram()
+
+#Kruskal–Wallis test
+KWtest_pctbitesfeces <- kruskal.test(percent_feces_bites ~ as.factor(species), data = coprophagy_df)
+KWtest_pctbitesfeces 
+
+#Dunn's test (non=parametric pairwise comparisons) using Bonferroni method
+dunntest_pctbitesfeces <- FSA::dunnTest(percent_feces_bites ~ as.factor(species), data=coprophagy_df, kw=TRUE, method="bonferroni")
+dunntest_pctbitesfeces
+
+#Filtering the Dunn's test results to show the significant pairwise comparisons
+sig_diffs_pctbitesfeces <- dunntest_pctbitesfeces$res %>% filter(P.adj < 0.05)
+sig_diffs_pctbitesfeces
+
+#writing the table to a csv
+write_csv(sig_diffs_pctbitesfeces, here("tables/table_s4.csv")) 
+
+#summary of median percent bites on feces by species
+summary_medpctbitesfeces <- coprophagy_df %>% 
+  group_by(species) %>% 
+  dplyr::summarise(median_pctbitesfeces = median(percent_feces_bites))
+summary_medpctbitesfeces
+```
+This chunk 1) checks the distribution of the fecal pellet bite rate (bites per minute) and possible transformations, 2) performs a Kruskal–Wallis test (non-parametric equivalent to an ANOVA, since data are not normally distributed), and 3) since the KW test was significant, performs a post hoc Dunn's test for pairwise compairsons
+```{r KW test: bite rate on feces by species}
+#checking distribution of data: bites per minute
+coprophagy_df %>% 
+  ggplot(aes(feces_bites_per_min))+
+  geom_histogram()
+
+#log-transformed bites per minute, still not normal
+coprophagy_df %>% 
+  mutate(log_feces_bites_per_min = (log(feces_bites_per_min+1))) %>% 
+  ggplot(aes(log_feces_bites_per_min))+
+  geom_histogram()
+
+#Kruskal–Wallis test (non-parametric equivalent to an ANOVA, since data are not normally distributed)
+KWtest_biterate<- kruskal.test(feces_bites_per_min ~ as.factor(species), data = coprophagy_df)
+KWtest_biterate
+
+#Dunn's test (non=parametric pairwise comparisons) using Bonferroni method
+dunntest_biterate <- dunnTest(feces_bites_per_min ~ as.factor(species), data=coprophagy_df, kw=TRUE, method="bonferroni")
+dunntest_biterate
+
+#Filtering the Dunn's test results to show the significant pairwise comparisons
+sig_diffs_biterate <- dunntest_biterate$res %>% filter(P.adj < 0.05)
+sig_diffs_biterate
+
+#writing the table to a csv
+write_csv(sig_diffs_biterate, here("tables/table_s5.csv")) 
+
+#summary of median bite rate on feces bites on feces by species
+summary_medbiteratebyspecies <-coprophagy_df %>% 
+  group_by(species) %>% 
+  dplyr::summarise(median_feces_bites_per_min = median(feces_bites_per_min))
+summary_medbiteratebyspecies
+```
+
+#Summarizing data
+
+This chunk summarizes the median percentage of bites 
+```{r summary of coprophagy rates by fish species} 
+#summary of median percent bites on feces by species
+pct_bites_on_feces_summary <- coprophagy_df %>% 
+  group_by(group, species) %>% 
+  summarise(mean_cl_boot(percent_feces_bites)) %>% #calculates median (y) and bootrapped 95% CI (ymin, ymax) based on 1000 iterations
+  left_join(classifications) %>% #joining in species abbreviations
+  select(group, species, species_abbrev, median_pct_bites_on_feces= y, lower_CI= ymin, upper_CI= ymax) #renaming vars and selecting relevant vars
+    
+#summary of median bite rate of feces by species
+bite_rate_summary <- coprophagy_df %>% 
+  group_by(group, species) %>% 
+  summarise(mean_cl_boot(feces_bites_per_min)) %>% #calculates median (y) and  bootrapped 95% CI (ymin, ymax) based on 1000 iterations
+  left_join(classifications) %>% #joining in species abbreviations
+  select(group, species, species_abbrev, median_feces_bites_per_min= y, lower_CI= ymin, upper_CI= ymax) #renaming vars and selecting relevant vars
+```
+
+#Visualizing data 
+
+This chunk creates a two-part figure of species-specific patterns of coprophagy based on fish behavioral surveys showing:
+a) median percent bites on feces by species + 95% bootstrapped CIs
+b) median bites per minute on feces by species + 95% bootstrapped CIs 
+The figure includes images of fishes to highlight significant coprophages based on a KW test and post hoc Dunn test 
+```{r fig 2: percent bites on feces by species}
+#fig part a: percentage of bites on feces
+fig_2a <- pct_bites_on_feces_summary %>%
+  
+  #removes error bars for species for which there was no observed coprophagy
+  mutate(lower_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=lower_CI),
+         upper_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=upper_CI)) %>%
+  
+  #specifying variables to plot in barplot
+  ggplot(aes(y=fct_rev(species_abbrev), x=median_pct_bites_on_feces, fill=fct_rev(group))) +
+  
+  #adds barplot
+  geom_bar(stat="identity") +
+
+  #adds error bars to barplot
+  geom_errorbar(aes(xmin=lower_CI, xmax=upper_CI), width=.2, position=position_dodge(.9))+
+  
+  #adding x-axis label, supressing y-axis label (unnecessary) and legend title
+  labs(x="Bites on feces (%)", y="", fill="") +
+
+  #setting the plot theme
+  theme_classic()+
+
+  #setting the fill color palette
+  scale_fill_manual(values= c( "#1D5DCA","#73C5CB"))+
+  
+  #formatting axis and legend text
+  theme(axis.text.y= element_text(color="black", face="italic", size=10),
+        axis.text.x = element_text(color="black", size=10),
+        axis.title.x = element_text(color="black", size=10),
+        legend.text = element_text(size=10))+
+  
+  #reduces the automatic ggplot gap before the 0 on the x-axis (and sets axis limits)
+  scale_x_continuous(expand = c(0, 0.25), limits=c(0,25))
+
+#fig part b: bites per min on feces
+fig_2b <- bite_rate_summary %>% 
+  
+  # removes error bars for species for which there was no observed coprophagy
+  mutate(lower_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=lower_CI),
+         upper_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=upper_CI)) %>%
+  
+  ggplot(aes(y=fct_rev(species_abbrev), x=median_feces_bites_per_min, fill=fct_rev(group))) +
+
+  #adds barplot
+  geom_bar(stat="identity") +
+  
+  #adds error bars to barplot
+  geom_errorbar(aes(xmin=lower_CI, xmax=upper_CI), width=.2, position=position_dodge(.9))+
+
+  #axis labelws
+  labs(x = "Coprophagy rates (bites per min)", y="", fill="") +
+    
+  #setting the plot theme
+  theme_classic()+ 
+    
+  #setting the fill color palette
+  scale_fill_manual(values= c("#1D5DCA", "#73C5CB"))+
+
+  #formats x-axis and legend, removes y axis text and ticks, which are in part a of the figure
+  theme(axis.text.y= element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.text.x = element_text(color="black", size=10),
+        axis.title.x = element_text(color="black", size=10),
+        legend.text = element_text(size=10))+
+    
+  #reduces the automatic ggplot gap before the 0 on the x-axis (and sets axis limits)
+  scale_x_continuous(expand = c(0, 0.05), limits=c(0,5)) 
+
+#combining plots into one preliminary figure
+figure2_combined <- ggpubr::ggarrange(fig_2a, fig_2b, ncol=2, align="h", common.legend = TRUE, labels=c("a","b"), widths=c(1.35,1))
+
+#reading in images to add to figure (highlighting significantly more coprophagous species based on KW test and post-hoc Dunn test)
+Acanthurus_coeruleus <- magick::image_read(here("figures/icons/Acanthurus_coeruleus.png"), density = NULL, depth = NULL, strip = TRUE)
+Scarus_iseri <- magick::image_read(here("figures/icons/Scarus_iseri.png"), density = NULL, depth = NULL, strip = TRUE)
+Scarus_taeniopterus <- magick::image_read(here("figures/icons/Scarus_taeniopterus.png"), density = NULL, depth = NULL, strip = TRUE)
+Sparisoma_aurofrenatum <- magick::image_read(here("figures/icons/Sparisoma_aurofrenatum.png"), density = NULL, depth = NULL, strip = TRUE)
+
+#adding images to figure
+fig_coprophagous_behavior <- cowplot::ggdraw() +
+  draw_plot(figure2_combined, scale=0.9, hjust = 0.05)+ 
+  draw_image(Acanthurus_coeruleus, x = 0.432, y = 0.258, scale=0.075)+
+  draw_image(Scarus_iseri, x = 0.435, y = 0.035, scale=0.08)+
+  draw_image(Scarus_taeniopterus, x = 0.427, y = -0.03, scale=0.1)+
+  draw_image(Sparisoma_aurofrenatum, x = 0.433, y = -0.135, scale=0.09)
+
+#saving figure
+ggsave(filename=paste0(here("figures/fig2_coprophagous_behavior.png")),
+      plot=fig_coprophagous_behavior,
+      width = 174, height = 90,
+      units = "mm",
+      dpi = 300)
+```
+
+This chunk creates an alternative version of figure 2 with the raw data points included
+```{r fig 2 alt version: percent bites on feces by species with raw data points}
+#fig part a: percentage of bites on feces
+fig_2a_raw <- pct_bites_on_feces_summary %>%
+  
+  #removes error bars for species for which there was no observed coprophagy
+  mutate(lower_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=lower_CI),
+         upper_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=upper_CI)) %>%
+  
+  #specifying variables to plot in barplot
+  ggplot(aes(y=fct_rev(species_abbrev), x=median_pct_bites_on_feces, fill=fct_rev(group))) +
+  
+  #adds barplot
+  geom_bar(stat="identity") +
+
+  #adds error bars to barplot
+  geom_errorbar(aes(xmin=lower_CI, xmax=upper_CI), width=.2, position=position_dodge(.9))+
+  
+  #adds the raw data points to the plot
+  geom_point(data=coprophagy_df, aes(y=fct_rev(species_abbrev), x=percent_feces_bites, alpha = 0.1), color="#4E4E4E", show.legend=FALSE)+
+
+  #adding x-axis label, supressing y-axis label (unnecessary) and legend title
+  labs(x="Bites on feces (%)", y="", fill="") +
+
+  #setting the plot theme
+  theme_classic()+
+
+  #setting the fill color palette
+  scale_fill_manual(values= c( "#1D5DCA","#73C5CB"))+
+  
+  #formatting axis and legend text
+  theme(axis.text.y= element_text(color="black", face="italic", size=10),
+        axis.text.x = element_text(color="black", size=10),
+        axis.title.x = element_text(color="black", size=10),
+        legend.text = element_text(size=10))+
+  
+  #reduces the automatic ggplot gap before the 0 on the x-axis (and sets axis limits)
+  scale_x_continuous(expand = c(0, 1.5), limits=c(0,65))
+
+#fig part b: bites per min on feces
+fig_2b_raw <- bite_rate_summary %>% 
+  
+  # removes error bars for species for which there was no observed coprophagy
+  mutate(lower_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=lower_CI),
+         upper_CI=ifelse(test=(lower_CI==0 & upper_CI==0), yes=NA, no=upper_CI)) %>%
+  
+  ggplot(aes(y=fct_rev(species_abbrev), x=median_feces_bites_per_min, fill=fct_rev(group))) +
+
+  #adds barplot
+  geom_bar(stat="identity") +
+  
+  #adds error bars to barplot
+  geom_errorbar(aes(xmin=lower_CI, xmax=upper_CI), width=.2, position=position_dodge(.9))+
+
+  #adds the raw data points to the plot
+  geom_point(data=coprophagy_df, aes(y=fct_rev(species_abbrev), x=feces_bites_per_min, alpha = 0.1), color="#4E4E4E", show.legend = FALSE)+
+  
+  #axis labelws
+  labs(x = "Coprophagy rates (bites per min)", y="", fill="") +
+    
+  #setting the plot theme
+  theme_classic()+ 
+    
+  #setting the fill color palette
+  scale_fill_manual(values= c("#1D5DCA", "#73C5CB"))+
+
+  #formats x-axis and legend, removes y axis text and ticks, which are in part a of the figure
+  theme(axis.text.y= element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.text.x = element_text(color="black", size=10),
+        axis.title.x = element_text(color="black", size=10),
+        legend.text = element_text(size=10))+
+    
+  #reduces the automatic ggplot gap before the 0 on the x-axis (and sets axis limits)
+  scale_x_continuous(expand = c(0, 0.2), limits=c(0,10)) 
+
+#combining plots into one preliminary figure
+figure2_raw_combined <- ggpubr::ggarrange(fig_2a_raw, fig_2b_raw, ncol=2, align="h", common.legend = TRUE, labels=c("a","b"), widths=c(1.35,1))
+
+# #reading in images to add to figure
+# Acanthurus_coeruleus <- magick::image_read(here("figures/icons/Acanthurus_coeruleus.png"), density = NULL, depth = NULL, strip = TRUE)
+# Scarus_iseri <- magick::image_read(here("figures/icons/Scarus_iseri.png"), density = NULL, depth = NULL, strip = TRUE)
+# Scarus_taeniopterus <- magick::image_read(here("figures/icons/Scarus_taeniopterus.png"), density = NULL, depth = NULL, strip = TRUE)
+# Sparisoma_aurofrenatum <- magick::image_read(here("figures/icons/Sparisoma_aurofrenatum.png"), density = NULL, depth = NULL, strip = TRUE)
+
+#adding images to figure
+fig_coprophagous_behavior_raw <- cowplot::ggdraw() +
+  draw_plot(figure2_raw_combined, scale=0.9, hjust = 0.05)+ 
+  draw_image(Acanthurus_coeruleus, x = 0.432, y = 0.258, scale=0.075)+
+  draw_image(Scarus_iseri, x = 0.435, y = 0.035, scale=0.08)+
+  draw_image(Scarus_taeniopterus, x = 0.427, y = -0.03, scale=0.1)+
+  draw_image(Sparisoma_aurofrenatum, x = 0.433, y = -0.135, scale=0.09)
+```

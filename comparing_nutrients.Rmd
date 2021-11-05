@@ -1,0 +1,562 @@
+---
+title: "comparing_nutrients"
+author: "Hannah Rempel & Abigail Siebert"
+date: "4/23/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+This script is used to compare the nutritional value of Brown chromis (Chromis multilineata) fecal pellets quantified in this study to published mean values for tropical red, green, and brown algae (Rhodophyta, Chlorophyta, and Ochrophyta, respectively), epilithic and endolithic algae matrix (EAM), and cyanobacteria (Cyanophyceae). For lipids, proteins, and carbohyrdates we compare all these food sources. Summaries of trace and minor elements only include Brown chromis feces and red, green, and brown algae because we were unable to find data on the trace and minor elements composition of EAM or tropical, naturally occuring cyanobacteria.
+
+#Setup
+The following chunk installs required packages and loads them.
+```{r loading packages, include=FALSE}
+#installs packages if not on the users computer
+if (!require(tidyverse)) install.packages("tidyverse")
+if (!require(here)) install.packages("here") 
+if (!require(purrr)) install.packages("purrr") 
+if (!require(plotrix)) install.packages("plotrix") 
+if (!require(ggplot2)) install.packages("ggplot2") 
+if (!require(grDevices)) install.packages("ggpubr")
+if (!require(grDevices)) install.packages("cowplot") 
+if (!require(grDevices)) install.packages("magick") 
+
+#creating a list of packages to load at once
+packages <- c("tidyverse", "here", "purrr", "plotrix", "ggplot2", "ggpubr", "cowplot", "magick")
+sapply(packages, require, character.only = T)  
+```
+
+The following reads in the data on the nutrient content of various food items (Chromis multilineata feces, red algae, green algae, brown algae, epilithic algae matrix (EAM), and cyanobacteria).
+```{r reading in data, include=FALSE}
+#literature values for red, green, and brown algae, EAM, and cyanobacteria
+nutrients_literature <- read_csv(here("data/algae_eam_cyanobacteria_nutrients.csv")) %>%
+  mutate(category_common=case_when(category_common=="Epilithic algae matrix"~"EAM",
+                                   TRUE~category_common)) %>%
+  #dropping unnecessary variables
+  select(-reference, -journal, -doi, -category_scientific, -conversions)
+
+#feces nutrional values from this study
+nutrients_feces <- read_csv(here("data/chromis_multilineata_fecal_nutrients.csv")) 
+
+#checking that all the columns are the same
+names(nutrients_literature) == names(nutrients_feces)
+
+#merging the datasets
+nutrients_df <- nutrients_feces %>% bind_rows(nutrients_literature) 
+```
+
+#Summarizing data: mean, median, min, max
+
+The following chunk summarizes the mean, median, minimum, maximum of values for for each food category (feces, red algae, green algae, brown algae, EAM, and cyanobacteria).
+```{r data summary for each food category}
+#mean values
+summary_mean <- nutrients_df %>%
+  group_by(category_common) %>%
+  dplyr::summarise(across(calories_kcalperg:zinc_ppm, mean, na.rm= TRUE))
+
+summary_mean
+
+#SEM values, for feces only (since other food soruces are published means, not raw data)
+summary_SEM_feces <- nutrients_df %>% 
+  filter(category_common=="Feces") %>%
+  dplyr::summarise(across(c("proteins_percent", "lipids_percent", "carbohydrates_percent", "ash_percent","calories_kcalperg", "calcium_percent", "magnesium_percent", "phosphorus_percent", "copper_ppm", "iron_ppm", "zinc_ppm"), ~ plotrix::std.error(.x, na.rm = TRUE))) %>%
+  mutate_all(round, 1)
+    
+summary_SEM_feces
+
+#median values
+summary_median <- nutrients_df %>%
+  group_by(category_common) %>%
+  dplyr::summarise(across(calories_kcalperg:zinc_ppm, median, na.rm= TRUE))
+  
+summary_median
+
+#min values
+summary_min <- nutrients_df %>%
+  group_by(category_common) %>%
+  dplyr::summarise(across(calories_kcalperg:zinc_ppm, min, na.rm= TRUE))
+  
+summary_min
+
+#max values
+summary_max <- nutrients_df %>%
+  group_by(category_common) %>%
+  dplyr::summarise(across(calories_kcalperg:zinc_ppm, max, na.rm= TRUE))
+
+summary_max
+```
+
+This chunk creates a table of summary statistics of major nutrients and total calories (Table S6)
+```{r supplementary table of summary statistics of major nutrient values}
+mean_vals <- summary_mean %>%
+  #transposing the data
+  gather(var, value, -category_common) %>% 
+  spread(category_common, value) %>%
+  add_column(statistic=rep("mean", ncol(summary_mean)-1)) %>%
+  select(var, statistic, "Feces", "Cyanobacteria", "EAM", "Brown algae", "Green algae", "Red algae")
+
+median_vals <- summary_median %>%
+  #transposing the data
+  gather(var, value, -category_common) %>% 
+  spread(category_common, value) %>%
+  add_column(statistic=rep("median", ncol(summary_mean)-1)) %>%
+  select(var, statistic, "Feces", "Cyanobacteria", "EAM", "Brown algae", "Green algae", "Red algae")
+
+min_vals <- summary_min %>%
+  #transposing the data
+  gather(var, value, -category_common) %>% 
+  spread(category_common, value) %>%
+  add_column(statistic=rep("min", ncol(summary_mean)-1)) %>%
+  select(var, statistic, "Feces", "Cyanobacteria", "EAM", "Brown algae", "Green algae", "Red algae")
+
+max_vals <- summary_max %>%
+  #transposing the data
+  gather(var, value, -category_common) %>% 
+  spread(category_common, value) %>%
+  add_column(statistic=rep("max", ncol(summary_mean)-1)) %>%
+  select(var, statistic, "Feces", "Cyanobacteria", "EAM", "Brown algae", "Green algae", "Red algae")
+
+combined_summary_stats <- mean_vals %>% bind_rows(median_vals) %>% bind_rows(min_vals) %>% bind_rows(max_vals) %>%
+  #reformatting NaN, Inf, and -Inf values as NAs (for variables of a given food item category for which there was no data)
+  replace(is.na(.), NA) %>% 
+  mutate_if(is.numeric, list(~na_if(., Inf)))%>% 
+  mutate_if(is.numeric, list(~na_if(., -Inf)))
+
+#taking feces SEM values and formatting to add to the macronutrient summary table below
+SEM_to_add_macros <- summary_SEM_feces %>%
+  gather(var, value) %>% 
+  add_column(statistic=rep("SEM", ncol(summary_SEM_feces)),
+             category_common=rep("Feces", ncol(summary_SEM_feces))) %>%
+  spread(category_common, value) %>%
+  select(var, statistic, Feces) %>%
+  #filtering to only macronutrients
+  filter(var %in% c("proteins_percent", "lipids_percent", "carbohydrates_percent", "ash_percent", "calories_kcalperg")) %>%
+  #adding in "dummy columns" for other food items
+  add_column("Cyanobacteria"=rep("NA", 5),
+             "EAM"=rep("NA", 5),
+             "Brown algae"=rep("NA", 5),
+             "Green algae"=rep("NA", 5),
+             "Red algae"=rep("NA", 5)) %>%
+  #formatting columns as doubles to bind to the other dataframe
+  mutate(Cyanobacteria=as.double(Cyanobacteria),
+         "EAM"=as.double("EAM"),
+         "Brown algae"=as.double("Brown algae"),
+         "Green algae"=as.double("Green algae"),
+         "Red algae"=as.double("Red algae"))
+
+table_macronutrient_summary <- combined_summary_stats %>% 
+  #filtering to select the relevant variables
+  filter(var %in% c("carbohydrates_percent", "lipids_percent", "proteins_percent", "ash_percent", "calories_kcalperg")) %>%
+  mutate_if(is.numeric, round,1) %>%
+  bind_rows(SEM_to_add_macros) %>%
+  #arranging by macronutrient type
+  mutate(var = fct_relevel(var, c("proteins_percent", "lipids_percent", "carbohydrates_percent", "ash_percent", "calories_kcalperg"))) %>%
+  arrange(var)
+
+#writing the table to a csv
+write_csv(table_macronutrient_summary, here("tables/table_s6.csv")) 
+```
+
+This chunk creates a table of summary statistics of minor and trace element values (Table S7)
+```{r supplementary table of summary statistics of minor and trace element values}
+#taking feces SEM values and formatting to add to the macronutrient summary table below
+SEM_to_add_micros <- summary_SEM_feces %>%
+  gather(var, value) %>% 
+  add_column(statistic=rep("SEM", ncol(summary_SEM_feces)),
+             category_common=rep("Feces", ncol(summary_SEM_feces))) %>%
+  spread(category_common, value) %>%
+  select(var, statistic, Feces) %>%
+  #filtering to only macronutrients
+  filter(var %in% c("calcium_percent", "magnesium_percent", "phosphorus_percent", "copper_ppm", "iron_ppm", "zinc_ppm")) %>%
+  #adding in "dummy columns" for other food items
+  add_column("Brown algae"=rep("NA", 6),
+             "Green algae"=rep("NA", 6),
+             "Red algae"=rep("NA", 6)) %>%
+  #formatting columns as doubles to bind to the other dataframe
+  mutate("Brown algae"=as.double("Brown algae"),
+         "Green algae"=as.double("Green algae"),
+         "Red algae"=as.double("Red algae"))
+
+table_micronutrient_summary <- combined_summary_stats %>% 
+  #dropping these variables because theres no trace or minor element data for these food items
+  select(-Cyanobacteria, -"EAM") %>%
+  #filtering to select the relevant variables
+  filter(var %in% c("calcium_percent", "magnesium_percent", "phosphorus_percent", "copper_ppm", "iron_ppm", "zinc_ppm")) %>%
+  mutate_if(is.numeric, round,2) %>%
+  bind_rows(SEM_to_add_micros) %>%
+  #arranging by macronutrient type
+  mutate(var = fct_relevel(var, c("calcium_percent", "magnesium_percent", "phosphorus_percent", "copper_ppm", "iron_ppm", "zinc_ppm"))) %>%
+  arrange(var)
+
+#writing the table to a csv
+write_csv(table_micronutrient_summary, here("tables/table_s7.csv")) 
+```
+
+#Sample size summary
+
+The following chunk summarizes the sample size for each food category (feces, red algae, green algae, brown algae, EAM, and cyanobacteria), where feces are samples from the present study, and values for all other food items are refrenced from published studies. 
+```{r referenced article sample size per category and nutrient type}
+n_carbs <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(carbohydrates_percent) %>%
+  drop_na(carbohydrates_percent) %>%
+  dplyr::summarize(carbs_n=n())
+
+n_ash <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(ash_percent) %>%
+  drop_na(ash_percent) %>%
+  dplyr::summarize(ash_n=n())
+
+n_lipids <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(lipids_percent) %>%
+  drop_na(lipids_percent) %>%
+  dplyr::summarize(lipids_n=n())
+
+n_protein <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(proteins_percent) %>%
+  drop_na(proteins_percent) %>%
+  dplyr::summarize(protein_n=n())
+
+n_cal <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(calories_kcalperg) %>%
+  drop_na(calories_kcalperg) %>%
+  dplyr::summarize(cal_n=n())
+
+n_mg <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(magnesium_percent) %>%
+  drop_na(magnesium_percent) %>%
+  dplyr::summarize(mg_n=n())
+
+n_p <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(phosphorus_percent) %>%
+  drop_na(phosphorus_percent) %>%
+  dplyr::summarize(p_n=n())
+
+n_ca <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(calcium_percent) %>%
+  drop_na(calcium_percent) %>%
+  dplyr::summarize(ca_n=n())
+
+n_fe <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(iron_ppm) %>%
+  drop_na(iron_ppm) %>%
+  dplyr::summarize(fe_n=n())
+
+n_cu <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(copper_ppm) %>%
+  drop_na(copper_ppm) %>%
+  dplyr::summarize(cu_n=n())
+
+n_zn <- nutrients_df %>% 
+  group_by(category_common) %>%  
+  select(zinc_ppm) %>%
+  drop_na(zinc_ppm) %>%
+  dplyr::summarize(zn_n=n())
+
+#tibble with the number of refrences per category and nutrient type
+reference_count <- n_cal %>% left_join(n_ash) %>% left_join(n_carbs) %>% left_join(n_lipids) %>% left_join(n_protein) %>% 
+  left_join(n_mg) %>% left_join(n_p) %>% left_join(n_ca) %>% left_join(n_fe) %>% left_join(n_cu) %>% left_join(n_zn) %>%
+  #replaces NA values with 0 (i.e., 0 references)
+  replace(is.na(.), 0)
+reference_count 
+```
+
+This chunk filters and formats the 'reference_count' tibble to create a supplementary table of the number of references per food item category considered for major nutrients (defined here as proteins, lipids, carbohydrates, ash, and total calories)
+```{r supplementary table of sample size for major nutrients}
+#supplementary table of the number of references per category for proteins, lipids, carbs, ash, and total calories
+table_major_nutrients <- reference_count %>% 
+  #selecting variables of interest
+  select(category_common, protein_n, lipids_n, carbs_n, ash_n, cal_n) %>% 
+  #transposing the data
+  gather(var, value, -category_common) %>% 
+  spread(category_common, value) %>%
+  #specifying variable order
+  mutate(variable = fct_relevel(var, c("protein_n", "lipids_n", "carbs_n", "ash_n", "cal_n"))) %>%
+  #rearranging column order
+  select(variable, "Cyanobacteria", "EAM", "Brown algae", "Green algae", "Red algae") %>%
+  #rearranging row order
+  arrange(variable)
+
+table_major_nutrients
+
+#writing the table to a csv
+write_csv(table_major_nutrients, here("tables/table_s2.csv")) 
+```
+
+This chunk filters and formats the 'reference_count' tibble to create a supplementary table of the number of references per food item category considered for minor and trace minerals (magnesium, phosphorus, calcium, iron, copper, zinc). We were unable to find references for cyanobacteria and EAM, thus these are excluded from subsequent visualization of the minor and trace minerals in food items.
+```{r supplementary table of sample size for minor and trace elements}
+#supplementary table of the number of references per category for minor and trace elements
+table_minor_nutrients <- reference_count %>%  
+  #selecting variables of interest
+  select(category_common, mg_n, p_n, ca_n, fe_n, cu_n, zn_n) %>% 
+  #transposing the data
+  gather(var, value, -category_common) %>% 
+  spread(category_common, value) %>%
+  #specifying variable order
+  mutate(variable = fct_relevel(var, c("mg_n", "p_n", "ca_n", "fe_n", "cu_n", "zn_n"))) %>%
+  #rearranging column order
+  select(variable, "Brown algae", "Green algae", "Red algae") %>%
+  #rearranging row order
+  arrange(variable)
+
+table_minor_nutrients
+
+#writing the table to a csv
+write_csv(table_minor_nutrients, here("tables/table_s3.csv")) 
+```
+
+#Visualizing data
+
+The following chunk visualized data on the protein, lipid, and carbohydrate content of red, green, and brown algae, EAM, cyanobacteria, and Chromis multilineata feces.
+```{r fig 3: proteins lipids carbs}
+#ordering the y axis values for the figure
+y_axis_ordered <- factor(nutrients_df$category_common, levels=c("Red algae", "Green algae", "Brown algae", "EAM", "Cyanobacteria","Feces"))
+
+#generating a color palette for the figure
+food_palette <- c("#A07272", "#8AAB7E", "#BF8E4C", "#8BC2BD", "#A11932", "#9D9D9D")
+
+#Proteins
+fig_protein <- nutrients_df %>%
+  ggplot(aes(y = y_axis_ordered, x = proteins_percent, fill = y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Proteins (%)",
+       y="") +
+  theme(legend.position = "none",
+        axis.title.x=element_text(size=10, color="black"),
+        axis.text=element_text(size=10, color="black")) +
+  scale_fill_manual(values=food_palette)
+
+#Lipids
+fig_lipid <- nutrients_df %>%
+  ggplot(aes(y = y_axis_ordered, x = lipids_percent, fill = y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Lipids (%)",
+       y="") +
+  theme(legend.position = "none",
+        axis.title.x=element_text(size=10, color="black"),
+        axis.text=element_text(size=10, color="black")) +
+  scale_fill_manual(values=food_palette)
+
+#Carbohydrates
+fig_carb <- nutrients_df %>%
+  ggplot(aes(y = y_axis_ordered, x = carbohydrates_percent, fill = y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Carbohydrates (%)",
+       y="") +
+  theme(legend.position = "none",
+        axis.title.x=element_text(size=10, color="black"),
+        axis.text=element_text(size=10, color="black")) +
+  scale_fill_manual(values=food_palette)
+
+#Calories
+fig_cal <- nutrients_df %>%
+  ggplot(aes(y = y_axis_ordered, x = calories_kcalperg, fill = y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x=expression(paste("Energy (kcal ", g^-1, ")")),
+       y="") +
+  theme(legend.position = "none",
+        axis.title.x=element_text(size=10, color="black"),
+        axis.text=element_text(size=10, color="black")) +
+  scale_fill_manual(values=food_palette)
+  
+#combining graphs (first step)
+fig_macronutrients_initial <- ggarrange(fig_protein + theme(plot.margin = margin(0.1,0.1,2,0.1, "cm"),
+                                                     axis.title.y = element_blank()), 
+                   fig_lipid + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    axis.title.y = element_blank(),
+                                    plot.margin = margin(0.1,0.1,2,0.1, "cm")), 
+                  fig_carb + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    axis.title.y = element_blank(),
+                                    plot.margin = margin(0.1,0.1,2,0.1, "cm")), 
+                   fig_cal + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    axis.title.y = element_blank(),
+                                    plot.margin = margin(0.1,0.1,2,0.1, "cm")), 
+                   nrow = 1,
+                   labels = "",
+                 widths=c(1.5,1,1,1),
+                  align = "h")
+
+#reading in images of food items to incorperate in figure
+feces <- magick::image_read(path=here("figures/icons/Chromis_feces.png"), density = NULL, depth = NULL, strip = TRUE)
+cyano <- magick::image_read(path=here("figures/icons/Cyanobacteria.png"), density = NULL, depth = NULL, strip = TRUE)
+EAM <- magick::image_read(path=here("figures/icons/EAM.png"), density = NULL, depth = NULL, strip = TRUE)
+brown_algae <- magick::image_read(path=here("figures/icons/Dictoyota_algae.png"), density = NULL, depth = NULL, strip = TRUE)
+green_algae <- magick::image_read(path=here("figures/icons/Halimeda_algae.png"), density = NULL, depth = NULL, strip = TRUE)
+red_algae <- magick::image_read(path=here("figures/icons/Laurencia_algae.png"), density = NULL, depth = NULL, strip = TRUE)
+
+#creating finalized figure with images of food items
+fig_macronutrients <- cowplot::ggdraw() +
+  draw_plot(fig_macronutrients_initial, scale=0.9, hjust = -0.02)+ #adds the plot (order matters to overlay the layers correctly)
+  draw_image(feces, x = -0.46, y = 0.375, scale=0.08)+
+  draw_image(cyano, x = -0.46, y = 0.28, scale=0.07)+
+  draw_image(EAM, x = -0.46, y = 0.185, scale=0.06)+
+  draw_image(red_algae, x = -0.46, y = -0.115, scale=0.087)+
+  draw_image(green_algae, x = -0.46, y = -0.012, scale=0.082)+ 
+  draw_image(brown_algae, x = -0.46, y = 0.09, scale=0.075)
+
+fig_macronutrients
+
+#saving figure
+ggsave(filename=(here::here("figures/fig3_macronutrients.png")),
+      plot=fig_macronutrients,
+      width = 174, height = 115,
+      units = "mm",
+      dpi = 300)
+```
+
+The following chunk visualized data on the minor and trace element content of red, green, and brown algae, EAM, cyanobacteria, and Chromis multilineata feces.
+```{r fig 4: minor and trace elements}
+#Getting rid of EAM data
+elements_categories <- nutrients_df %>%
+  #filtering out EAM and cyanobacteria because we were unable to finddata on their minor and trace element content
+  dplyr::filter(category_common %in% c("Brown algae", "Green algae", "Red algae", "Feces")) %>%
+  select(category_common, magnesium_percent:zinc_ppm)
+
+#ordering the y axis values for the figure
+fig2_y_axis_ordered <- factor(elements_categories$category_common , levels=c("Red algae", "Green algae", "Brown algae", "Feces"))
+
+#generating a color palette for the figure
+nutrient_palette <- c("#A07272", "#8AAB7E", "#BF8E4C", "#9D9D9D")
+
+#Calcium
+fig_calcium <- elements_categories %>%
+  ggplot(aes(y = fig2_y_axis_ordered, x = calcium_percent, fill = fig2_y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Calcium (%)",
+       y="") +
+    scale_x_continuous(labels = scales::number_format(accuracy = 0.1))+
+  theme(legend.position = "none",
+        axis.text=element_text(size=10, color="Black"),
+        axis.title=element_text(size=10, color="Black"))+
+  scale_fill_manual(values=nutrient_palette)
+
+#Phosphorus
+fig_phosphorus <- elements_categories %>%
+  ggplot(aes(y = fig2_y_axis_ordered, x = phosphorus_percent, fill = fig2_y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Phosphorus (%)",
+       y="") +
+    scale_x_continuous(labels = scales::number_format(accuracy = 0.1))+
+  theme(legend.position = "none",
+        axis.text=element_text(size=10, color="Black"),
+        axis.title=element_text(size=10, color="Black"))+
+  scale_fill_manual(values=nutrient_palette)
+
+#Magnesium
+fig_magnesium <- elements_categories %>%
+  ggplot(aes(y = fig2_y_axis_ordered, x = magnesium_percent, fill = fig2_y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Magnesium (%)",
+       y="")+
+    scale_x_continuous(labels = scales::number_format(accuracy = 0.1))+
+  theme(legend.position = "none",
+        axis.text=element_text(size=10, color="Black"),
+        axis.title=element_text(size=10, color="Black"))+
+  scale_fill_manual(values=nutrient_palette)
+  
+#Copper
+fig_copper <- elements_categories %>%
+  ggplot(aes(y = fig2_y_axis_ordered, x = copper_ppm, fill = fig2_y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Copper (ppm)",
+       y="") +
+  lims(x=c(0,30))+
+  theme(legend.position = "none",
+        axis.text=element_text(size=10, color="Black"),
+        axis.title=element_text(size=10, color="Black"))+
+  scale_fill_manual(values=nutrient_palette)
+
+#Iron
+fig_iron <- elements_categories %>%
+  ggplot(aes(y = fig2_y_axis_ordered, x = iron_ppm, fill = fig2_y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Iron (ppm)",
+       y="")+
+  theme(legend.position = "none",
+        axis.text=element_text(size=10, color="Black"),
+        axis.title=element_text(size=10, color="Black"))+
+  scale_fill_manual(values=nutrient_palette)
+
+#Zinc
+fig_zinc <- elements_categories %>%
+  ggplot(aes(y = fig2_y_axis_ordered, x = zinc_ppm, fill = fig2_y_axis_ordered)) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(x="Zinc (ppm)",
+       y="")+
+  theme(legend.position = "none",
+        axis.text=element_text(size=10, color="Black"),
+        axis.title=element_text(size=10, color="Black"))+
+  scale_fill_manual(values=nutrient_palette)
+
+#Combining graphs into one figure
+fig_micronutrients_initial <- ggarrange(fig_calcium + theme(axis.title.y = element_blank(),
+                                                plot.margin = unit(c(t=0,r=0.25,b=0,l=0.25), "cm")),
+                                
+                              fig_magnesium + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    plot.margin = unit(c(t=0,r=0.25,b=0,l=0.1), "cm")),
+                              
+                              fig_phosphorus + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    plot.margin = unit(c(t=0,r=0.25,b=0,l=0.25), "cm")),
+                              
+                              fig_copper  + theme(axis.title.y = element_blank(),
+                                                       plot.margin = unit(c(t=0.25,r=0.1,b=0,l=0.1), "cm")),
+                                
+                              fig_iron + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    plot.margin = unit(c(t=0.25,r=0.25,b=0,l=0.25), "cm")),
+                            
+                              fig_zinc + theme(axis.text.y = element_blank(),
+                                    axis.ticks.y = element_blank(),
+                                    plot.margin = unit(c(t=0,r=0.25,b=0,l=0.1), "cm")),
+                                
+                              ncol = 3, nrow = 2,
+                            align = "h",
+                  widths=c(1, 0.78, 0.78, 1, 0.78, 0.78))
+
+#creating finalized figure with images of food items
+fig_micronutrients <- cowplot::ggdraw() +
+  draw_plot(fig_micronutrients_initial, scale=0.9, hjust = -0.06)+ #adds the plot (order matters to overlay the layers correctly)
+  #upper set
+  draw_image(feces, x = -0.45, y = 0.38, scale=0.08)+
+  draw_image(brown_algae, x = -0.45, y = 0.3, scale=0.068)+
+  draw_image(green_algae, x = -0.45, y = 0.22, scale=0.07)+ 
+  draw_image(red_algae, x = -0.45, y = 0.13, scale=0.07)+
+  #lower set
+  draw_image(feces, x = -0.45, y = -0.08, scale=0.08)+
+  draw_image(brown_algae, x = -0.45, y = -0.145, scale=0.068)+
+  draw_image(green_algae, x = -0.45, y = -0.23, scale=0.07)+ 
+  draw_image(red_algae, x = -0.45, y = -0.315, scale=0.07)
+
+fig_micronutrients
+
+#saving figure
+ggsave(filename=here::here("figures/fig4_micronutrients.png"),
+      plot=fig_micronutrients,
+      width = 174, height = 115,
+      units = "mm",
+      dpi = 300)
+```

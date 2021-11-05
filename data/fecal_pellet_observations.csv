@@ -1,0 +1,136 @@
+site,latitude,longitude,date,time_start,time_end,coprophage_species,phase,behavior,copr_behavior_depth_m,benthos_depth_m,depth_defecated_m,sink_rate_ms
+Tolo,12.214962,-68.337958,2019-08-02,12:35:00,12:41:00,Scarus taeniopterus,IP,eaten,16.2,17.1,10.7,0.015
+Tolo,12.214962,-68.337958,2019-08-02,12:35:00,12:41:00,none,NA,no coprophagy,NA,17.1,11,0.032
+Cliff,12.174285,-68.290726,2019-08-03,13:54:00,14:00:00,Sparisoma aurofrenatum,IP,eaten,10.4,10.4,7.9,0.032
+Cliff,12.174285,-68.290726,2019-08-03,13:54:00,14:00:00,Stegastes planifrons,NA,eaten,6.4,6.7,3.4,0.042
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,none,NA,no coprophagy,NA,9.4,7,0.024
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Scarus vetula,IP,eaten,7.6,9.1,5.5,0.016
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Scarus taeniopterus,IP,eaten,6.7,8.5,4.3,0.032
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Stegastes spp.,NA,eaten,6.4,7.6,4,0.027
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Stegastes partitus,NA,tasted,10.1,11,4.6,0.02
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Stegastes spp.,NA,eaten,7,8.8,3.4,0.02
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Acanthurus coeruleus,NA,eaten,9.1,9.8,6.1,0.027
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Stegastes spp.,NA,tasted,11.3,12.5,10.4,0.011
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Microspathodon chrysurus,NA,inspected,9.4,9.8,8.2,0.028
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,none,NA,no coprophagy,NA,7.9,4.6,0.023
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,none,NA,no coprophagy,NA,9.8,4.3,0.021
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Sparisoma aurofrenatum,IP,eaten,5.5,6.1,4,0.012
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Scarus taeniopterus,TP,eaten,5.8,7.3,4.6,0.013
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Scarus taeniopterus,IP,eaten,7.9,9.1,6.1,0.028
+Karpata,12.219123,-68.352684,2019-08-02,14:10:00,15:04:00,Scarus vetula,IP,eaten,8.5,10.1,6.7,0.017
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,11.6,12.2,10.1,0.009
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,12.8,15.5,10.1,0.021
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,8.8,10.7,7.6,0.023
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,7.6,10.1,5.5,0.022
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,9.8,11.3,8.2,0.028
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,8.5,10.4,5.2,0.024
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,8.2,9.1,5.8,0.027
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,11.3,16.2,10.1,0.03
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,11,13.7,10.1,0.018
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,11.9,12.8,9.1,0.028
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,8.5,15.2,8.5,not recorded
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,14,14.6,9.1,0.021
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,7.6,13.7,6.4,0.027
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,8.2,9.8,7,0.028
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,8.5,9.4,8.2,not recorded
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus vetula,IP,eaten,9.8,10.7,7.9,0.022
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,7.3,11,7,not recorded
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus iseri,TP,eaten,8.2,9.8,8.2,not recorded
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus vetula,IP,eaten,9.4,10.7,7.3,0.019
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus vetula,TP,eaten,8.8,9.4,6.7,0.023
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,8.5,11.6,8.2,0.01
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus iseri,IP,eaten,9.1,11.6,8.5,0.01
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,9.4,11.6,7.6,0.03
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,9.4,11.9,8.8,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,11,11,9.4,0.021
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,8.2,11.6,6.4,0.026
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,6.7,9.1,6.1,0.012
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,6.1,9.8,4,0.069
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,6.1,10.4,5.5,0.02
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,13.1,12.8,6.1,0.026
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,10.4,11,8.2,0.036
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,7.3,10.4,7,0.034
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,8.5,9.8,5.2,0.024
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,TP,eaten,7.3,9.1,6.1,0.023
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,8.2,9.8,7.9,0.03
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,8.5,10.1,6.7,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,TP,eaten,7.3,9.4,5.2,0.02
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,TP,eaten,10.4,13.1,10.1,0.011
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,10.7,13.7,10.1,0.03
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,11,12.2,9.8,0.024
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,12.2,12.5,10.4,0.02
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,10.4,13.7,9.8,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,10.7,14.6,8.5,0.024
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,9.1,15.2,8.5,0.023
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,11,13.4,7.9,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,IP,eaten,14,14.6,10.7,0.032
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,TP,eaten,17.7,18.3,14,0.028
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,10.7,16.5,7.3,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Sparisoma aurofrenatum,TP,eaten,10.4,13.4,9.1,0.02
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Scarus taeniopterus,TP,eaten,9.1,11.9,7.3,0.018
+Bachelor's Beach,12.125726,-68.288226,2019-08-04,10:06:00,11:35:00,Acanthurus coeruleus,NA,eaten,6.7,12.8,6.1,0.012
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Stegastes partitus,NA,eaten,10.1,12.2,8.2,0.025
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,eaten,8.8,12.2,7.9,0.019
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,7,6.7,0.001
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus vetula,IP,eaten,9.4,12.2,8.8,0.018
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,10.1,7.6,0.003
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,eaten,10.7,11.9,8.2,0.024
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,tasted,12.2,12.5,8.2,0.029
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Acanthurus coeruleus,NA,eaten,10.7,11,8.8,0.028
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,eaten,11.6,13.7,10.7,0.011
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,15.8,11.3,0.026
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,eaten,14,15.5,12.2,0.032
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Sparisoma viride,IP,eaten,13.4,15.5,12.2,0.023
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,tasted,13.7,15.5,10.7,0.025
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,eaten,13.1,14.9,11.6,0.033
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Acanthurus coeruleus,NA,eaten,8.5,11.6,8.2,0.051
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,12.8,7.9,0.016
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,12.8,9.1,0.028
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,8.5,7,not recorded
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Sparisoma aurofrenatum,IP,tasted,13.1,14.6,10.1,0.035
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,12.2,9.8,0.019
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Pomacanthus paru,NA,eaten,11.3,13.1,7.9,0.033
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,15.8,10.1,0.037
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,17.7,9.8,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Stegastes partitus,NA,eaten,9.8,10.1,7,0.033
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Stegastes partitus,NA,eaten,13.7,14.3,10.1,not recorded
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Acanthurus coeruleus,NA,eaten,9.8,11,7.3,0.023
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,10.7,7.6,0.035
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Acanthurus coeruleus,NA,eaten,7.6,9.8,5.8,0.016
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Acanthurus coeruleus,NA,eaten,9.8,11.6,6.7,0.02
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,eaten,14,14.9,8.5,0.027
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Scarus taeniopterus,IP,eaten,11.3,11.9,7.9,0.025
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,none,NA,no coprophagy,NA,10.7,7.3,0.02
+Bachelor's Beach,12.125726,-68.288226,2019-08-06,10:00:00,11:33:00,Stegastes planifrons,NA,eaten,10.4,11,9.8,0.003
+Bachelor's Beach,12.125726,-68.288226,2019-08-17,10:05:00,10:20:00,Scarus taeniopterus,IP,eaten,5.5,7,3.7,0.011
+Bachelor's Beach,12.125726,-68.288226,2019-08-17,10:05:00,10:20:00,Acanthurus coeruleus,NA,eaten,5.2,7,4,0.012
+Bachelor's Beach,12.125726,-68.288226,2019-08-17,10:05:00,10:20:00,Scarus taeniopterus,IP,eaten,5.5,6.4,4.3,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-17,10:05:00,10:20:00,Acanthurus coeruleus,NA,eaten,4.9,6.4,3.4,0.012
+Cliff,12.174285,-68.290726,2019-08-19,10:30:00,10:40:00,Scarus taeniopterus,TP,eaten,7.9,8.8,7.3,0.012
+Bachelor's Beach,12.125726,-68.288226,2019-08-20,11:57:00,12:05:00,Scarus taeniopterus,IP,eaten,13.1,14.6,9.4,0.015
+Bachelor's Beach,12.125726,-68.288226,2019-08-24,11:17:00,11:23:00,Sparisoma aurofrenatum,TP,eaten,5.8,6.1,4,0.011
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Abudefduf saxatilis,NA,eaten,11,11.6,9.8,0.011
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Pomacanthus paru,NA,eaten,11.6,12.8,11,0.012
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Scarus taeniopterus,IP,eaten,9.1,11,9.8,0.014
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Acanthurus coeruleus,NA,eaten,9.4,11,8.5,0.012
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Acanthurus coeruleus,NA,eaten,9.8,11,7.9,0.011
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Scarus taeniopterus,IP,eaten,9.8,11,8.2,0.011
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Scarus vetula,IP,eaten,10.1,11,9.1,0.012
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Scarus taeniopterus,IP,eaten,9.1,11,8.5,0.013
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Acanthurus coeruleus,NA,eaten,7.9,10.1,7,0.013
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Acanthurus coeruleus,NA,eaten,7.6,10.1,6.7,0.012
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Scarus taeniopterus,IP,eaten,9.1,10.7,8.5,0.013
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Acanthurus tractus,NA,eaten,10.1,10.4,9.4,0.01
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Scarus vetula,IP,eaten,6.4,11,7.3,0.013
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Scarus taeniopterus,TP,eaten,6.1,11,4.9,0.011
+Cliff,12.174285,-68.290726,2019-09-02,9:30:00,10:45:00,Acanthurus tractus,NA,eaten,6.7,11,4.9,0.011
+Cliff,12.174285,-68.290726,2019-09-03,10:00:00,11:30:00,Acanthurus chirurgus,NA,eaten,7.6,6.7,5.5,0.01
+Cliff,12.174285,-68.290726,2019-09-03,10:00:00,11:30:00,Scarus taeniopterus,TP,eaten,6.1,11.9,5.2,0.01
+Cliff,12.174285,-68.290726,2019-09-03,10:00:00,11:30:00,Acanthurus coeruleus,NA,eaten,5.8,11.9,4.9,0.011
+Cliff,12.174285,-68.290726,2019-09-03,10:00:00,11:30:00,Acanthurus chirurgus,NA,eaten,8.8,10.4,7.9,0.011
+Cliff,12.174285,-68.290726,2019-09-05,9:15:00,10:50:00,Acanthurus chirurgus,NA,eaten,10.1,12.2,7.6,0.008
+Cliff,12.174285,-68.290726,2019-09-05,9:15:00,10:50:00,Acanthurus chirurgus,NA,eaten,11,13.7,8.2,0.008
+Cliff,12.174285,-68.290726,2019-09-05,9:15:00,10:50:00,Acanthurus coeruleus,NA,eaten,7.6,12.2,6.4,0.008
+Cliff,12.174285,-68.290726,2019-09-05,9:15:00,10:50:00,Acanthurus tractus,NA,eaten,6.1,9.8,5.5,0.009
+Cliff,12.174285,-68.290726,2019-09-05,9:15:00,10:50:00,Sparisoma aurofrenatum,NA,eaten,7.3,9.8,5.8,0.011
+Cliff,12.174285,-68.290726,2019-09-05,9:15:00,10:50:00,Scarus taeniopterus,IP,eaten,6.7,9.8,4.9,0.011

@@ -1,0 +1,326 @@
+---
+title: "Analysis of fecal pellet observations"
+author: "Abby Siebert and Hannah Rempel"
+date: "4/29/2020"
+output: pdf_document
+---
+
+This script is used to: 
+(1) summarize the observed defecation rate of Brown chromis (Chromis multilineata) fish, 
+(2) analyze the relationship between C. multilineata fork length and defecation rate, 
+(3) summarize the species that consumed these fecal pellets and their relative consumption, 
+(4) analyze the effect of the between the distance above the benthos at which a C. multilineata defecated and the fecal pellet sinking rate on the likelihood that it was consumed by coprophagous fishes, 
+(5) analyze the proportion of Chromis multilineata feces consumed by parrotfish and surgeonfish species after accounting for their relative density, and (6) visualize patterns of feces consumption by coporophagous fishes relative to their density.
+
+#Setup
+This chunk installs relevant packages if they are not yet installed on the user's computer, then loads that list of packages
+```{r loading package, include=FALSE}
+#installs packages if not on the users computer
+if (!require(tidyverse)) install.packages("tidyverse")
+if (!require(here)) install.packages("here")
+if (!require(plotrix)) install.packages("plotrix") #for std.error() function
+if (!require(RColorBrewer)) install.packages("RColorBrewer") #for graph colors
+if (!require(grDevices)) install.packages("grDevices") #also for graph colors
+if (!require(magick)) install.packages("magick") #for reading in  images
+if (!require(cowplot)) install.packages("cowplot") #for adding images to graphs 
+if (!require(ggpubr)) install.packages("ggpubr") #for combining multipanel figures
+
+#create a list of packages to load at once
+packages <- c("tidyverse", "here", "plotrix", "RColorBrewer", "grDevices", "magick", "cowplot", "ggpubr")
+sapply(packages, require, character.only = T)  
+```
+
+This chunk reads in the data used in this files, and includes some initial data filtering, cleaning, and preliminary calculations of variables needed for this analysis.
+```{r reading in data, include=FALSE}
+#data on observations of fecal pellets and related coprophagy events
+fecal_pellet_observations <- read_csv(here("data/fecal_pellet_observations.csv")) %>% 
+  #calculating the distance above the benthos at which the fecal pellet was defecated
+  mutate(dist_above_benthos_m = benthos_depth_m-depth_defecated_m)
+
+#data on the defecation rate of Chromis multilineata
+chromis_defecation_rate <- read_csv(here("data/chromis_multilineata_defecation_rate.csv")) %>%
+  #calculating the number of defecations by C. multilineata individuals per minute
+  mutate(def_per_min = n_defecations/ duration_min)
+
+#list of parrotfish and surgeonfish species observed in this study
+parrotfish_surgeonfish <- c("Acanthurus tractus", "Acanthurus chirurgus","Acanthurus coeruleus","Scarus coeruleus","Scarus guacamaia","Scarus iseri", "Scarus taeniopterus", "Scarus vetula", "Sparisoma aurofrenatum", "Sparisoma chrysopterum", "Sparisoma rubripinne", "Sparisoma viride")
+
+#data on the biomass of parrotfishes, surgeonfishes, and Chromis multilineata
+fish_density_transect_level <- read_csv(here("data/summary_fish_density_by_transect.csv")) %>% 
+  #filtering to ony include the density of parrotfishes and surgeonfishes, not Chromis multilineata
+  filter(survey_type != "C. multilineata survey") 
+```
+
+#Analysis of Chromis multilineata defecation rate
+
+What was the mean Chromis multilineata defecation rate?
+Was there an effect of Chromis multilineata fork length on defecation rate? 
+```{r Chromis multilineata defecation rate per minute in response to fork length}
+#Chromis multilineata defecation rate by fork length
+summary_def_rate_by_fish_size <- chromis_defecation_rate %>%
+  group_by(fork_length_cm)%>%
+  dplyr::summarise(mean_def_per_min = mean(def_per_min), 
+                   sd_def_per_min= sd(def_per_min),
+                   se_def_per_min = plotrix::std.error(def_per_min),
+                   sample_size = n()) 
+  
+summary_def_rate_by_fish_size
+
+#overall mean Chromis multilineata defecation rate
+summary_def_rate <- chromis_defecation_rate %>%
+  dplyr::summarise(mean_def_per_min = mean(def_per_min), #mean
+                   sd_def_per_min= sd(def_per_min), #standard deviation
+                   se_def_per_min = plotrix::std.error(def_per_min)) %>%
+  mutate(mean_def_per_hour = mean_def_per_min*60,
+         se_def_per_hour = se_def_per_min*60)#standard error of the mean
+
+#checking the correlation between fish fork length (size) and defecation rate
+cor.test(chromis_defecation_rate$def_per_min, chromis_defecation_rate$fork_length_cm) 
+```
+#Analysis of fecal pellet observations
+
+What percentge of fecal pellets were consumed, tasted, insepected, or not inspected or consumed prior to reaching the benthos?
+What species consumed feces? Of the total observed instances of coprophagy, what percentage were by each species? 
+Of the fecal pellets consumed by fishes, what percentage were consumed by parrotfishes or surgeonfishes compared to other fishes?
+```{r summary of fecal pellet observations}
+#total observations of fecal pellets
+n_total_observations <- fecal_pellet_observations %>%  
+  summarise(n=n()) 
+
+n_total_observations
+
+#total observed instances of coprophagy
+coprophagy_total <- fecal_pellet_observations %>% 
+  filter(behavior=="eaten") %>%
+  summarise(n=n()) 
+
+coprophagy_total
+
+#total feces consumed by parrotfishes and surgeonfishes alone
+coprophagy_counts_parrotfish_surgeonfish <- fecal_pellet_observations %>% 
+  filter(coprophage_species %in% parrotfish_surgeonfish & behavior=="eaten") %>%
+  summarise(n=n()) 
+
+coprophagy_counts_parrotfish_surgeonfish
+
+#percent of feces consumed, tasted, inspected, or not inspected
+percent_feces_consumed <- fecal_pellet_observations %>% 
+  group_by(behavior) %>%
+  summarise(n=n()) %>%
+  mutate(percent = n/sum(n)*100)
+
+percent_feces_consumed
+
+#percentage of feces consumed by observed coprophagous fish species
+coprophagy_counts <- fecal_pellet_observations %>% 
+  #filtering data to only include instances where fecal pellets were eaten
+  filter(behavior=="eaten") %>%
+  group_by(coprophage_species) %>%
+  dplyr::summarise(n_feces_consumed=n()) %>%
+  mutate(percent_consumption = (n_feces_consumed/coprophagy_total$n)*100)
+
+coprophagy_counts
+
+#percentage of the observed instances of copoprophagy by parrotfishes and surgeonfishes
+(sum(coprophagy_counts_parrotfish_surgeonfish$n)/coprophagy_total$n)*100 
+
+#percentage consumed by non-parrotfishes or surgeonfishes
+100- (sum(coprophagy_counts_parrotfish_surgeonfish$n)/coprophagy_total$n)*100 
+```
+
+Was there an effect of the distance above the benthos at which a fecal pellet was defecated and its sinking rate on the likelihood of the feces being eaten?
+
+Of the 135 total observed fecal pellets, 6 data points were excluded from this analysis because the sinking rate for those fecal pellets was not recorded. Of 129 observed feces in this model, 20 were not consumed. The model terms of the distance above the benthos and sinking rate did not explain why most feces were consumed, but a few not. Therefore, it is unsurprising that the residuals are more extreme for feces that were not consumed as this model was a poor fit for explaining those discrepancies.
+```{r binomial regression analysis: likelihood of feces consumption by distance above benthos and sink rate}
+# Creating a dataset with binomials for analysis 
+feces_consumption_binom <- fecal_pellet_observations %>% 
+  #creating a binomial variable (feces consumed=1, not consumed=0)
+  mutate(coprophagy_0_1 = case_when(behavior=="eaten"~1, 
+                                    behavior %in% c("no coprophagy", "inspected", "tasted") ~ 0)) %>% 
+  #removing 6 instances where fecal pellet sinking rate was not recorded
+  filter(sink_rate_ms!="not recorded") %>%
+  mutate(sink_rate_ms=as.double(sink_rate_ms))
+
+sinking_rate_summary <-feces_consumption_binom %>% 
+  dplyr::summarise(mean_sink_rate_ms= mean(sink_rate_ms), 
+                   se_sink_rate_ms = plotrix::std.error(sink_rate_ms))
+
+sinking_rate_summary
+
+#Summary of the number of observations: 129 total observations in model (b/c 6 data points w/ missing sinking rates were removed)
+feces_consumption_binom %>% filter(behavior =="eaten") %>% nrow() #109 observations in which feces were consumed in model data
+feces_consumption_binom %>% filter(behavior %in% c("no coprophagy", "inspected", "tasted")) %>% nrow() #20 in which feces was not consumed
+
+#Logistic regression of feces consumption
+consumption_likelihood_binom_interaction <- glm(coprophagy_0_1 ~ (dist_above_benthos_m)*(sink_rate_ms), data=feces_consumption_binom, family="binomial") 
+summary(consumption_likelihood_binom_interaction) #NS, including interaction, so dropping interaction term and rerunning model
+
+consumption_likelihood_binom <- glm(coprophagy_0_1 ~ (dist_above_benthos_m)+(sink_rate_ms), data=feces_consumption_binom, family="binomial") 
+summary(consumption_likelihood_binom) #NS
+
+#Checking residuals
+#model with interaction: all the extreme residuals are those where the fecal pellet was not consumed (red=consumed, black=not consumed)
+plot(residuals(consumption_likelihood_binom_interaction), col = feces_consumption_binom$coprophagy_0_1 + 1) 
+plot(consumption_likelihood_binom_interaction)
+
+#model with interaction: similar pattern
+plot(residuals(consumption_likelihood_binom_interaction), col = feces_consumption_binom$coprophagy_0_1 + 1) 
+plot(consumption_likelihood_binom_interaction)
+
+#adding redisuals to the df
+feces_consumption_binom$resid <- consumption_likelihood_binom$residuals
+
+#visualizing residuals by model terms: they seem to span a similar range of distance above the benthos at defecation and sinking rate
+feces_consumption_binom %>% ggplot(aes(dist_above_benthos_m, resid, color=as.character(coprophagy_0_1))) + geom_point()
+feces_consumption_binom %>% ggplot(aes(sink_rate_ms, resid, color=as.character(coprophagy_0_1))) + geom_point()
+```
+
+What was the overall mean density of parrotfish and surgeonfish species across sites?
+```{r summarizing the mean density of species across sites}
+mean_fish_density <- fish_density_transect_level %>%
+  group_by(species) %>%
+  dplyr::summarise(mean_n_per_m2 = mean(n_per_m2), #mean fish density
+                   sem_n_per_m2= plotrix::std.error(n_per_m2)) #SEM of fish density
+```
+
+Did some parrotfish and surgeonfish species (including those not observed engaging in coprophagy) eat a greater proportion of fish feces than predicted based on their proportional abundance? (Since it's density of an individual species/total density, the units cancel, so we refer to this as proportional abundance for clarity/simplicity).
+```{r simulation-based test of coporphagy accounting for density}
+#setting the starting number used to generate a sequence of random numbers, so results of random sample are the same every time
+set.seed(14901)
+
+#the total sum of fish density
+total_fish_density <- mean_fish_density %>% 
+  summarise(total_density=sum(mean_n_per_m2))
+
+#proportion of fecal pellets consumed by each parrotfish and surgeonfish species relative to total consumed by these species
+feces_consumption_by_species <- fecal_pellet_observations %>%
+  filter(coprophage_species %in% parrotfish_surgeonfish & behavior =="eaten") %>%
+  group_by(coprophage_species) %>% 
+  dplyr::summarise(n=n()) %>%
+  mutate(proportion_consumed = n/ sum(coprophagy_counts_parrotfish_surgeonfish$n)) %>%
+  select(species=coprophage_species, n, proportion_of_coprophagy_events=proportion_consumed) 
+
+#summarizing the proportional biomass of fish 
+proportions_df <- mean_fish_density %>%
+  mutate(proportional_abundance = mean_n_per_m2/total_fish_density$total_density) %>%
+  left_join(feces_consumption_by_species) %>% 
+  select(species, proportional_abundance, proportion_of_coprophagy_events) %>%
+  mutate(proportion_of_coprophagy_events = case_when(is.na(proportion_of_coprophagy_events) ~ 0, #replacing NA's for species that weren't observed coprophages
+                                                     TRUE ~ proportion_of_coprophagy_events)) 
+
+#Simulation-based test: randomly sampling counts of coprophagy per species based on biomass 1000 times
+#replace=TRUE is what makes this simulation-based inference
+my_samples <- replicate(1000, sample(proportions_df$species, coprophagy_counts_parrotfish_surgeonfish$n, proportions_df$proportional_abundance, replace = TRUE), simplify = FALSE) %>% 
+  #formatting output into table
+  purrr::map_dfr(., table) 
+
+#summarizing output
+simulated_coprophagy_events <- my_samples %>% 
+  #adds in a number for each of the 1000 iterations based on the row number
+  rowid_to_column("iteration") %>% 
+  pivot_longer(cols = contains(' '), names_to = 'species', values_to = 'sim_coprophagy_events') %>%
+  #the sum of bites in each iteration
+  mutate(sim_coprophagy_events = case_when(is.na(sim_coprophagy_events) ~0,  #replacing NAs with 0
+                                                 TRUE~ as.numeric(sim_coprophagy_events)),
+         
+         sim_proportion_of_coprophagy_events = sim_coprophagy_events/104) %>% #dividing by 104 b/c there were 104 total observations of coprophagy by parrotfishes and surgeonfishes
+  left_join(proportions_df, by = "species") %>%
+  select(-proportional_abundance) %>%
+  #calculating if a given simulation (based on abundance) is more extreme than the observed levels of coporphagy
+  mutate(extreme_obs = case_when(proportion_of_coprophagy_events <= sim_proportion_of_coprophagy_events  ~ 1, TRUE ~ 0))
+
+#statistical significance of results
+simulation_stats <- simulated_coprophagy_events %>% 
+  group_by(species) %>% 
+  #the sum of the instances in which coprophagy rates were less than or equal to predicted ammounts
+  summarise(sum_extreme_obs = sum(extreme_obs)) %>% 
+  #p-value is the sum of the extreme observations over 1000
+  mutate(p_value_positive = sum_extreme_obs/1000, #p-value of the likelihood that coprophagy rates were greater than predicted based on relative species density
+         p_value_negative = 1-p_value_positive) #likelihood that coprophagy rates were less than predicted by relative species density
+
+simulation_stats
+```
+
+#Visualizing data
+
+Figure showing the observed proportional consumption of feces by fish species relative to their proportional abundance. The black line shows a 1:1 relationship, where values above the line indicate a higher proportional consumption of feces after accounting for the proportional abundance of a given fish species, and values below the line indicate the opposite. 
+```{r supplements fig 3: proportinal fish abundance to proportional coprophagy}
+#quick visualization of patterns 
+fig_proportions <- proportions_df %>% 
+  ggplot(aes(proportional_abundance, proportion_of_coprophagy_events, color=species))+ 
+  geom_abline(intercept=0, slope=1)+ #if above line, they eat more feces proportional to biomass, if below, vice versafi
+  geom_point(size=3, alpha=0.6)+
+  theme_classic()+
+  lims(x=c(0,0.5), y=c(0, 0.5))+
+  theme(legend.text = element_text(face = "italic"))+
+  labs(x="Proportional abundance", y="Proportion of coprophagy events", color="Species")
+
+fig_proportions
+
+ggsave(filename=(here::here("figures/figs3_proportionalcoprophagy.png")),
+      plot=fig_proportions,
+      width = 144, height = 90,
+      units = "mm",
+      dpi = 300)
+```
+
+Two-part graph of (a) the proportion of observed coprophagy events by species and (b) the mean density of species
+```{r fig 1: Proportion of feces consumed by species}
+#Creating tibble of species name abbreviations and groups (parrotfish, surgeonfish) for graphing
+classifications <- tibble(species=parrotfish_surgeonfish, 
+                          species_abbrev=c("A. tractus", "A. chirurgus", "A. coeruleus", "Sc. coeruleus", "Sc. guacamaia", "Sc. iseri", "Sc. taeniopterus", "Sc. vetula","Sp. aurofrenatum", "Sp. chrysopterum", "Sp. rubripinne", "Sp. viride"),
+                          group=c(rep("Surgeonfish", 3), rep("Parrotfish", 9)))
+
+fig_a <- proportions_df %>%
+  left_join(classifications) %>%
+  ggplot(aes(y = fct_rev(species_abbrev), x = (proportion_of_coprophagy_events)*100, fill = fct_rev(group))) +
+  geom_bar(stat="identity") +
+  theme_classic()+
+  labs(x="Feces consumed (%)", y="", fill="") +
+  theme(axis.text.y = element_text(face="italic", color="black", size=10),
+        axis.text.x = element_text(color="black", size=10),
+        axis.title.x = element_text(color="black", size=10),
+        legend.text = element_text(size=10))+
+  scale_fill_manual(values= c("#1D5DCA", "#73C5CB"))+ #Surgenofish= #1D5DCA, Parrotfish= #73C5CB
+  scale_x_continuous(expand = c(0, 0.5), limits=c(0, 50)) #reduces axis padding
+        
+fig_b <-  mean_fish_density %>%
+    left_join(classifications) %>%
+  ggplot(aes(x = mean_n_per_m2, y = fct_rev(species_abbrev), fill = fct_rev(group))) +
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(xmin = mean_n_per_m2 - sem_n_per_m2, xmax = mean_n_per_m2 + sem_n_per_m2), width = 0.2) +
+  theme_classic()+
+  labs(x=expression(paste("Density (n ", m^-2, ")")), y="", fill="") +
+  theme(axis.text.y= element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.text.x = element_text(color="black", size=10),
+        axis.title.x = element_text(color="black", size=10),
+        legend.text = element_text(size=10))+
+  scale_fill_manual(values= c("#1D5DCA", "#73C5CB"))+ #Surgenofish= #1D5DCA, Parrotfish= #73C5CB
+  scale_x_continuous(expand = c(0, 0.0003), limits=c(0,0.07))  #reduces axis padding
+
+#combining plots into one preliminary figure
+figure_combined <- ggarrange(fig_a, fig_b, 
+                  ncol=2, 
+                  align="h", 
+                  common.legend = TRUE,
+                  labels=c("a","b"), 
+                  widths=c(1.35,1))
+
+#reading in images to add to figure
+Acanthurus_coeruleus <- magick::image_read(here::here("figures/icons/Acanthurus_coeruleus.png"), density = NULL, depth = NULL, strip = TRUE)
+Scarus_taeniopterus <- magick::image_read(here::here("figures/icons/Scarus_taeniopterus.png"), density = NULL, depth = NULL, strip = TRUE)
+
+#adding images to figure
+fig_coprophagy_proportion <- cowplot::ggdraw() +
+  draw_plot(figure_combined, scale=0.9, hjust = 0.05)+ #adds the plot (order matters to overlay the layers correctly)
+  draw_image(Acanthurus_coeruleus, x = 0.41, y = 0.258, scale=0.08)+
+   #draw_image(sparisoma, x = 0.44, y = -0.13, scale=0.11)+
+  draw_image(Scarus_taeniopterus, x = 0.4, y = -0.01, scale=0.1)
+
+ggsave(filename=here::here("figures/fig1_proportion_analysis.png"),
+      plot=fig_coprophagy_proportion,
+      width = 174, height = 90,
+      units = "mm",
+      dpi = 300)
+```

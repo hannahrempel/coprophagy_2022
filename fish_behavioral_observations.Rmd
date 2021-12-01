@@ -25,9 +25,10 @@ if (!require(Hmisc)) install.packages("Hmisc") #for bootstrapped confidence inte
 if (!require(magick)) install.packages("magick") #for reading in images to add to graphs
 if (!require(cowplot)) install.packages("cowplot") #for adding images to graphs 
 if (!require(ggpubr)) install.packages("ggpubr") #for combining multipanel figures
+if (!require(lubridate)) install.packages("lubridate") #for combining multipanel figures
 
 #creates a list of packages to load at once
-packages <- c("tidyverse", "here","FSA", "Hmisc", "magick", "cowplot", "ggpubr", "here")
+packages <- c("tidyverse", "here","FSA", "Hmisc", "magick", "cowplot", "ggpubr", "lubridate")
 sapply(packages, require, character.only = T)  
 ```
 
@@ -386,4 +387,34 @@ fig_coprophagous_behavior_raw <- cowplot::ggdraw() +
   draw_image(Scarus_iseri, x = 0.435, y = 0.035, scale=0.08)+
   draw_image(Scarus_taeniopterus, x = 0.427, y = -0.03, scale=0.1)+
   draw_image(Sparisoma_aurofrenatum, x = 0.433, y = -0.135, scale=0.09)
+```
+
+Is there any apparent relationship between time of day between 9:00-16:00 and corpophagy rates among species?
+```{r Supplemental figure: coprophhagy rates by time of day}
+#function to append the hms object to remove the seconds and only include hours and minutes
+format_hm <- function(sec) stringr::str_sub(format(sec), end = -4L)
+
+#percentage of bites on feces as a function of the time of observations
+fig_s2a <- coprophagy_df %>% ggplot(aes(y=percent_feces_bites, x= time_start))+ 
+  geom_point()+
+  scale_x_time(limits=hms('09:00:00', '16:00:00'), breaks = hms('09:00:00', '10:00:00', '11:00:00','12:00:00','13:00:00','14:00:00', '15:00:00', "16:00:00"), labels = format_hm)+
+  labs(x="Time of day", y="Bites on feces (%)", color="Species")+
+  theme_classic()
+
+#bite rate on feces as a function of the time of observations
+fig_s2b <-coprophagy_df %>% ggplot(aes(y=feces_bites_per_min, x= time_start))+ 
+  geom_point()+
+  scale_x_time(limits=hms('09:00:00', '16:00:00'), breaks = hms('09:00:00', '10:00:00', '11:00:00','12:00:00','13:00:00','14:00:00', '15:00:00', "16:00:00"), labels = format_hm)+
+  labs(x="Time of day", y="Coprophagy rate", color="Species")+
+  theme_classic()
+
+#combining plots into one supplemental figure
+figure_s2_combined <- ggpubr::ggarrange(fig_s2a, fig_s2b, ncol=2, align="h",  labels=c("a","b"))
+
+#saving figure
+ggsave(filename=paste0(here("figures/figs2_coprophagy_by_time.png")),
+       plot=figure_s2_combined,
+       width = 174, height = 80,
+       units = "mm",
+       dpi = 300)
 ```
